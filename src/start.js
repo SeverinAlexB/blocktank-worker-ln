@@ -1,4 +1,4 @@
 'use strict'
-const Server = require('./src/Worker')
+const Server = require('./Worker')
 const ln = new Server({})
 ln.start()
