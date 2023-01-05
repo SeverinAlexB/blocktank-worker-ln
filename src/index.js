@@ -1,7 +1,7 @@
 'use strict'
 const NodeMan = require('./NodeMan')
 
-module.exports = function BlocktankNodeManager (lnConfig) {
+export function BlocktankNodeManager (lnConfig) {
   return new NodeMan(
     {
       nodes: lnConfig.ln_nodes,
