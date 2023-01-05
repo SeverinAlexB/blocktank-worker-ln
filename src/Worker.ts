@@ -1,30 +1,34 @@
-'use strict'
-const { Worker } = require('blocktank-worker')
+import { Worker } from 'blocktank-worker';
+import { GrapeServerConfig } from 'blocktank-worker/dist/grenache/GrapeServerConfig';
 const NodeMan = require('./NodeMan')
-const fs = require("fs")
-const path = require("path")
+import * as fs from 'fs';
+import * as path from 'path';
+
+
 const privates = [
   'constructor'
 ]
 
 class Lightning extends Worker {
-  constructor (config) {
+  public ln: any;
+  constructor (config: GrapeServerConfig) {
     super({
       name: 'svc:ln',
       port: config.port,
       db_url: 'mongodb://0.0.0.0:27017'
     })
-    let lnConfig = {}
-    if(config?.ln_nodes){
-      lnConfig.ln_nodes = config.ln_nodes
-      lnConfig.events ? lnConfig.events : {
-        htlc_forward_event: [],
-        channel_acceptor: [],
-        peer_events: [],
-      }
-    } else {
-      lnConfig = this._getConfig()
-    }
+    const lnConfig = this._getLnConfig();
+    // let lnConfig = {}
+    // if(config?.ln_nodes){
+    //   lnConfig.ln_nodes = config.ln_nodes
+    //   lnConfig.events ? lnConfig.events : {
+    //     htlc_forward_event: [],
+    //     channel_acceptor: [],
+    //     peer_events: [],
+    //   }
+    // } else {
+    //   lnConfig = this._getLnConfig()
+    // }
 
     this.ln = new NodeMan(
       {
@@ -36,17 +40,21 @@ class Lightning extends Worker {
         }
       })
 
-    this.ln.on('broadcast', ({ svc, method, args, cb }) => {
-      this.callWorker(svc, method, args, cb)
-    })
+    this.ln.on('broadcast', ({ svc, method, args, cb }: any) => {
+      this.call({
+        service: svc,
+        method: method,
+        args: args
+      }, cb)
+    });
   }
 
-  _getConfig(){
+  _getLnConfig(){
     try{
       return JSON.parse(fs.readFileSync(path.resolve(__dirname,'../config/worker.config.json'),{encoding:"utf8"}))
     } catch(err){
-        console.log(err) 
-      return this.errRes("FAILED_TO_LOAD_CONFIG")
+      console.log(err) 
+      throw new Error("FAILED_TO_LOAD_CONFIG")
     }
   }
 

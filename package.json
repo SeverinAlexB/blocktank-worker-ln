@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "async": "^3.2.3",
-    "blocktank-worker": "git+https://github.com/synonymdev/blocktank-worker.git",
+    "blocktank-worker": "github:SeverinAlexB/blocktank-worker#typescript",
     "ln-service": "^53.23.0",
     "lodash": "^4.17.21"
   },
