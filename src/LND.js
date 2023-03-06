@@ -278,8 +278,8 @@ class LND {
     this._lnd('getPayments', args,cb)
   }
 
-  getPayment (id, cb) {
-    this._lnd('getPayment', { id }, (err, data) => {
+  getPayment(args, cb) {
+    this._lnd('getPayment', { id: args.id }, (err, data) => {
       if (err) {
         if (err[0] === 404 && err[1] === 'SentPaymentNotFound') {
           return cb(null)
