@@ -1,15 +1,23 @@
 {
-    "compilerOptions": {
-      "outDir": "./dist/",
-      "noImplicitAny": true,
-      "sourceMap": true,
-      "module": "CommonJS",
-      "target": "ES2022",
-      "lib": ["ES2022"],
-      "allowJs": true,
-      "moduleResolution": "node",
-      "declaration": true,
-    },
-    "include": ["./src/**/*"],
-    "exclude": ["node_modules"]
-  }
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "module": "CommonJS",
+    "target": "ES2022",
+    "lib": [
+      "ES2022"
+    ],
+    "allowJs": true,
+    "moduleResolution": "node",
+    "declaration": true,
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ]
+}
