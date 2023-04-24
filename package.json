@@ -6,6 +6,7 @@
   "dependencies": {
     "async": "^3.2.3",
     "blocktank-worker": "github:SeverinAlexB/blocktank-worker#typescript",
+    "blocktank-worker2": "github:synonymdev/blocktank-worker2#master",
     "lightning": "^7.0.3",
     "ln-service": "^53.23.0",
     "lodash": "^4.17.21"
