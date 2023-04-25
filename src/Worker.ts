@@ -1,4 +1,5 @@
 import { Worker, waitOnSigint } from 'blocktank-worker2';
+import {MongoDatabase} from 'blocktank-worker2'
 import {LightningWorkerImplementation} from './worker/WorkerImplementation';
 // import { GrapeServerConfig } from 'blocktank-worker/dist/grenache/GrapeServerConfig';
 // const NodeMan = require('./NodeMan')
@@ -7,16 +8,19 @@ import {LightningWorkerImplementation} from './worker/WorkerImplementation';
 
 
 async function main() {
+  
   const worker = new Worker(new LightningWorkerImplementation(), {
     name: 'svc:ln',
   })
   try {
+    await MongoDatabase.connect()
     await worker.start()
     console.log(`Worker "${worker.config.name}" started. Ctrl+C to stop.`)
     await waitOnSigint()
   } finally {
     console.log(`Stopping worker...`)
     await worker.stop()
+    await MongoDatabase.close()
   }
 }
 

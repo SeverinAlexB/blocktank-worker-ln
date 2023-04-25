@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { ILndNodeConfig } from '../config/ILndNodeConfig';
+import { ILndNodeConfig } from '../1_config/ILndNodeConfig';
 
 export interface ILndConnectionInfo {
     tlsCertificate: string,
