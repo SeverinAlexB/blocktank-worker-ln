@@ -1,5 +1,5 @@
 import { Worker, waitOnSigint } from 'blocktank-worker2';
-import {MongoDatabase} from 'blocktank-worker2'
+import {BlocktankDatabase} from 'blocktank-worker2'
 import {LightningWorkerImplementation} from './worker/WorkerImplementation';
 // import { GrapeServerConfig } from 'blocktank-worker/dist/grenache/GrapeServerConfig';
 // const NodeMan = require('./NodeMan')
@@ -13,14 +13,14 @@ async function main() {
     name: 'svc:ln',
   })
   try {
-    await MongoDatabase.connect()
+    await BlocktankDatabase.connect('./mikro-orm.config.ts')
     await worker.start()
     console.log(`Worker "${worker.config.name}" started. Ctrl+C to stop.`)
     await waitOnSigint()
   } finally {
     console.log(`Stopping worker...`)
     await worker.stop()
-    await MongoDatabase.close()
+    await BlocktankDatabase.close()
   }
 }
 

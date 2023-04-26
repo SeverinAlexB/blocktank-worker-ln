@@ -1,14 +1,14 @@
-const { MongoDatabase } = require('blocktank-worker2')
+const { BlocktankDatabase } = require('blocktank-worker2')
 
 
 global.beforeAll(async () => {
-    await MongoDatabase.connectInMemory()
+    await BlocktankDatabase.connectInMemory(process.cwd() + '/src/mikro-orm.config.ts')
 });
 
 global.afterEach(async () => {
-    await MongoDatabase.clearDatabase()
+    await BlocktankDatabase.cleanDatabase()
 });
 
 global.afterAll(async () => {
-    await MongoDatabase.close()
+    await BlocktankDatabase.close()
 });

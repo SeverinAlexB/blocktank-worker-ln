@@ -11,6 +11,9 @@
     "allowJs": true,
     "moduleResolution": "node",
     "declaration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true
   },
   "include": [
     "./src/**/*"

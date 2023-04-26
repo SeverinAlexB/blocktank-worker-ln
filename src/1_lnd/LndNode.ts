@@ -63,10 +63,9 @@ export class LndNode {
 
     /**
      * Subscribes to invoices changes.
-     * 
      */
     public subscribeToInvoice(paymentHash: string, callback: (invoice: ln.GetInvoiceResult) => any) {
-        return ln.subscribeToInvoice({lnd: this.rpc, id: paymentHash}).on('invoice_updated', async (event: ln.GetInvoiceResult) => {
+        ln.subscribeToInvoice({lnd: this.rpc, id: paymentHash}).on('invoice_updated', async (event: ln.GetInvoiceResult) => {
             await callback(event)
         })
     }
