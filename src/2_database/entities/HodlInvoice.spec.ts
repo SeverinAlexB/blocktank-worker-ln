@@ -1,10 +1,9 @@
 import {ILndNodeConfig} from '../../1_config/ILndNodeConfig'
-import { readLndConnectionInfo2 } from '../../1_lnd/ILndConnectionInfo'
-import { LndNode } from '../../1_lnd/LndNode'
-import { HodlInvoiceState } from '../../1_lnd/hodl/HodlInvoiceState'
+import { readLndConnectionInfo2 } from '../../1_lnd/lndNode/ILndConnectionInfo'
+import { HodlInvoiceState } from './HodlInvoiceState'
 import { HodlInvoice } from './HodlInvoice.entity'
 import {BlocktankDatabase} from 'blocktank-worker2'
-import {sleep} from 'blocktank-worker2/dist/utils'
+import { LndNode } from '../../1_lnd/lndNode/LndNode'
 
 const config: ILndNodeConfig = {
     grpcSocket: '127.0.0.1:10001',
@@ -88,23 +87,7 @@ describe('HodlInvoiceModel', () => {
         expect(invoice.state).toEqual(HodlInvoiceState.PAID)
     });
 
-    xtest('Cancel event', async () => {
-        const node = await nodeFactory()
-        const em = BlocktankDatabase.createEntityManager()
-        const repo = em.getRepository(HodlInvoice)
-        const invoice = await repo.createByNodeAndPersist(1000, 'test', node)
 
-        await invoice.listenStateEvents(node, (newState) => {
-            console.log(new Date(), 'Status changed to', newState)
-        })
-        console.log('invoice', invoice.request)
-
-        // DO: Actually pay the invoice on another node!
-        await sleep(1*1000)
-
-        await repo.cancelAndPersist(invoice, node)
-        await sleep(10*1000)
-    });
 });
 
 

@@ -1,27 +1,21 @@
-import { waitOnSigint, RabbitPublisher, BlocktankDatabase } from "blocktank-worker2"
-import { LndNodeManager } from "./1_lnd/LndNodeManager"
+import { waitOnSigint, BlocktankDatabase } from "blocktank-worker2"
 import dbConfig from './mikro-orm.config'
 import { HodlInvoiceWatcher } from "./services/HodlInvoiceWatcher"
-import { HodlInvoice } from "./database/entities/HodlInvoice.entity"
+import { LndNodeManager } from "./1_lnd/lndNode/LndNodeManager"
 
 
-// async function createInvoice() {
-//     const em = BlocktankDatabase.createEntityManager()
-//     const repo = em.getRepository(HodlInvoice)
-//     const invoice = await repo.createByNodeAndPersist(1000, 'test', LndNodeManager.nodes[0], 20*1000)
-//     await em.flush()
-//     console.log(invoice.request)
-// }
 
+/**
+ * Worker that watches HodlInvoices on LND, updates our database and publishes events to rabbitMq.
+ */
 async function main() {
     const watcher = new HodlInvoiceWatcher()
     try {
         await BlocktankDatabase.connect(dbConfig)
         await LndNodeManager.init()
-        // await createInvoice()
         await watcher.watch(LndNodeManager.nodes)
 
-        console.log('Watch invoices.')
+        console.log('Watch hodl invoices.')
         console.log('Configured nodes:\n' + LndNodeManager.description)
         console.log()
         console.log('Press Ctrl+C to exit.')

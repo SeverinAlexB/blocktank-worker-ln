@@ -1,8 +1,8 @@
 import { EntityRepository } from '@mikro-orm/mongodb'; // or any other driver package
 import { HodlInvoice } from '../entities/HodlInvoice.entity';
-import { LndNode } from '../../1_lnd/LndNode';
 import { LightningInvoice } from '../../1_lnd/LightningInvoice';
-import { HodlInvoiceState } from '../../1_lnd/hodl/HodlInvoiceState';
+import { HodlInvoiceState } from '../entities/HodlInvoiceState';
+import { LndNode } from '../../1_lnd/lndNode/LndNode';
 
 
 export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {

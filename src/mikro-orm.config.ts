@@ -1,7 +1,7 @@
 
 import { MikroORMOptions, ReflectMetadataProvider } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import entities from './database/entities';
+import entities from './2_database/entities';
 
 const config: Partial<MikroORMOptions<MongoDriver>> = {
   entities: entities,

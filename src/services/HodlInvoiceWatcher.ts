@@ -1,16 +1,17 @@
 import { BlocktankDatabase, RabbitPublisher } from "blocktank-worker2";
-import { LndNode } from "../1_lnd/LndNode";
-import { HodlInvoice } from "../database/entities/HodlInvoice.entity";
-import { LndNodeList } from "../1_lnd/LndNodeList";
-import { LndHodlInvoiceService } from "../1_lnd/hodl/LndHodlInvoiceService";
+import { HodlInvoice } from "../2_database/entities/HodlInvoice.entity";
 import * as ln from 'lightning'
 import { Config } from "../1_config/Config";
+import { interferInvoiceChangedAt, interferInvoiceState } from "../2_database/entities/HodlInvoiceState";
+import { LndNodeList } from "../1_lnd/lndNode/LndNodeList";
+import { LndNode } from "../1_lnd/lndNode/LndNode";
+import { IInvoiceStateChangedEvent } from "./InvoiceStateChangedEvent";
 
 const config = Config.get()
 
 
 /**
- * Watcher that subscribes to all open hodl invoices and publishes events to RabbitMQ.
+ * Watcher that subscribes to all open hodl invoices, updates our database and publishes events to RabbitMQ.
  */
 export class HodlInvoiceWatcher {
     public nodes: LndNodeList;
@@ -53,21 +54,23 @@ export class HodlInvoiceWatcher {
 
     private async onInvoiceEvent(invoice: HodlInvoice, lndInvoice: ln.GetInvoiceResult) {
         const oldState = invoice.state
-        const newState = LndHodlInvoiceService.interferState(lndInvoice)
+        const newState = interferInvoiceState(lndInvoice)
         console.log(`paymentHash ${invoice.paymentHash} ${oldState} to ${newState}`)
         const stateChanged = newState !== invoice.state
         if (stateChanged) {
             // State changed
             invoice.state = newState
             await BlocktankDatabase.createEntityManager().persistAndFlush(invoice)
-            await this.publisher.publish('invoice.changed', {
+            const changedAt = interferInvoiceChangedAt(lndInvoice)
+            const event: IInvoiceStateChangedEvent = {
                 paymentHash: invoice.paymentHash,
                 state: {
                     old: oldState,
                     new: newState
                 },
-                createdAt: new Date()
-            })
+                changedAt: changedAt
+            }
+            await this.publisher.publish('invoice.changed', event)
         }
     }
 
