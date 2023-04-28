@@ -45,8 +45,15 @@ export class LndNode {
         return info
     }
 
-    async createHodlInvoice(amountSat: number, description: string): Promise<ln.CreateHodlInvoiceResult> {
-        return await ln.createHodlInvoice({lnd: this.rpc, tokens: amountSat, description: description})
+    /**
+     * Creates a hold invoice. LND seems to be canceling hold invoices automatically 10 blocks before it would cause a channel force close.
+     * @param amountSat 
+     * @param description 
+     * @returns 
+     */
+    async createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): Promise<ln.CreateHodlInvoiceResult> {
+        const expiredAt = new Date(Date.now() + expiresInMs)
+        return await ln.createHodlInvoice({lnd: this.rpc, tokens: amountSat, description: description, expires_at: expiredAt.toISOString()})
     }
 
     async cancelHodlInvoice(paymentHash: string) {
@@ -83,6 +90,7 @@ export class LndNode {
 
     /**
      * Subscribes to invoices changes.
+     * First event is always the current state of the invoice.
      */
     public subscribeToInvoice(paymentHash: string, callback: (invoice: ln.GetInvoiceResult) => any) {
         ln.subscribeToInvoice({lnd: this.rpc, id: paymentHash}).on('invoice_updated', async (event: ln.GetInvoiceResult) => {

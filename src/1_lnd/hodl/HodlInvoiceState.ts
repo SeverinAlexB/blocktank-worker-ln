@@ -3,5 +3,4 @@ export enum HodlInvoiceState {
     HOLDING = 'holding',
     PAID = 'paid',
     CANCELED = 'canceled',
-    EXPIRED = 'expired',
 }

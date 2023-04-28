@@ -1,12 +1,9 @@
 {
-  "ln_nodes": [
+  "nodes": [
     {
-      "cert": "tls.cert",
-      "macaroon": "admin.macaroon",
-      "socket": "127.0.0.1:10007",
-      "node_type": "LND",
-      "node_name": "lnd"
+      "certPath": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/tls.cert",
+      "macaroonPath": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon",
+      "grpcSocket": "127.0.0.1:10001"
     }
   ],
-  "db_url":"mongodb://localhost:27017"
 }

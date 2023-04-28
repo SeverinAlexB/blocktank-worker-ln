@@ -6,11 +6,11 @@ import { HodlInvoiceState } from '../../1_lnd/hodl/HodlInvoiceState';
 
 
 export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {
-    async createByNodeAndPersist(amountSat: number, description: string, node: LndNode) {
-        const lndInvoice = await node.createHodlInvoice(amountSat, description)
+    async createByNodeAndPersist(amountSat: number, description: string, node: LndNode, expiresInMs: number = 60*60*1000) {
+        const lndInvoice = await node.createHodlInvoice(amountSat, description, expiresInMs)
         const lnInvoice = new LightningInvoice(lndInvoice.request)
         const invoice = new HodlInvoice()
-        invoice.id = lndInvoice.id
+        invoice.paymentHash = lndInvoice.id
         invoice.request = lndInvoice.request
         invoice.tokens = lndInvoice.tokens
         invoice.secret = lndInvoice.secret
@@ -22,7 +22,7 @@ export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {
     }
 
     async cancelAndPersist(invoice: HodlInvoice, node: LndNode) {
-        await node.cancelHodlInvoice(invoice.id)
+        await node.cancelHodlInvoice(invoice.paymentHash)
         invoice.state = HodlInvoiceState.CANCELED
         this.em.persist(invoice)
     }
@@ -31,5 +31,9 @@ export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {
         await node.settleHodlInvoice(invoice.secret)
         invoice.state = HodlInvoiceState.PAID
         this.em.persist(invoice)
+    }
+
+    async getAllOpen() {
+        return this.find({ state: { $in: [HodlInvoiceState.HOLDING, HodlInvoiceState.PENDING] } })
     }
 }

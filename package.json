@@ -14,7 +14,8 @@
   "scripts": {
     "test": "npx jest",
     "build": "tsc",
-    "start": "npm run build && node dist/worker.js"
+    "start": "npm run build && node dist/worker.js",
+    "watch-invoices": "npm run build && node dist/hodlInvoiceChangedWorker.js"
   },
   "repository": {
     "type": "git",

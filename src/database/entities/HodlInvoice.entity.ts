@@ -6,7 +6,7 @@ import { HodlInvoiceState } from "../../1_lnd/hodl/HodlInvoiceState";
 import { LightningInvoice } from "../../1_lnd/LightningInvoice";
 import { LndHodlInvoiceService } from "../../1_lnd/hodl/LndHodlInvoiceService";
 import { HodlInvoiceStateChange } from "../../1_lnd/hodl/IHodlInvoiceStateChange";
-
+import * as crypto from 'crypto';
 
 
 @Entity({
@@ -19,7 +19,10 @@ export class HodlInvoice {
     _id!: ObjectId;
 
     @SerializedPrimaryKey()
-    id!: string;
+    id: string = crypto.randomUUID();
+
+    @Property()
+    paymentHash: string
 
     @Property()
     request: string;
@@ -38,13 +41,6 @@ export class HodlInvoice {
     })
     state: HodlInvoiceState = HodlInvoiceState.PENDING;
 
-    /**
-     * Blockheight before the payment needs to be released otherwise the channel will be force closed.
-     * Only available in state "holding".
-     */
-    @Property({nullable: true})
-    paymentCltvTimeout: number
-
     @Property()
     createdAt: Date;
 
@@ -62,17 +58,16 @@ export class HodlInvoice {
      */
     async listenStateEvents(node: LndNode, callback: (change: HodlInvoiceStateChange) => any) {
         // Catch up on the latest state in case it changed while we were offline
-        const newState = await LndHodlInvoiceService.getState(this.id, node) 
+        const newState = await LndHodlInvoiceService.getState(this.paymentHash, node) 
         await callback(newState)
 
-        LndHodlInvoiceService.listenStateEvents(this.id, node, async update => {
+        LndHodlInvoiceService.listenStateEvents(this.paymentHash, node, async update => {
             await callback(update)
         })
     }
 
     async refreshState(node: LndNode) {
-        const change = await LndHodlInvoiceService.getState(this.id, node)
+        const change = await LndHodlInvoiceService.getState(this.paymentHash, node)
         this.state = change.state
-        this.paymentCltvTimeout = change.cltvTimeoutBlockHeight
     }
 }

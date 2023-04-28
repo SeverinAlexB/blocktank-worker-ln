@@ -9,11 +9,7 @@ export interface ILndConnectionInfo {
 
 
 const readToBase64 = (path: string) => {
-    try{
       return readFileSync(path, { encoding: 'base64' })
-    } catch(err){
-      return path
-    }
   }
 
 export function readLndConnectionInfo2(config: ILndNodeConfig): ILndConnectionInfo {

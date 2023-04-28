@@ -1,11 +1,9 @@
 // {
 //     "ln_nodes": [
 //       {
-//         "cert": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/tls.cert",
-//         "macaroon": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon",
-//         "socket": "127.0.0.1:10001",
-//         "node_type": "LND",
-//         "node_name": "alice_lnd"
+//         "certPath": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/tls.cert",
+//         "macaroonPath": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon",
+//         "grpcSocket": "127.0.0.1:10001",
 //       }
 //     ],
 //   }

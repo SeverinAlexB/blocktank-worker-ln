@@ -6,11 +6,9 @@ import { HodlInvoiceStateChange } from './IHodlInvoiceStateChange'
 export class LndHodlInvoiceService {
     public static async getState(paymentHash: string, node: LndNode): Promise<HodlInvoiceStateChange> {
         const invoice = await node.getInvoice(paymentHash)
-        const cltvTimeout = this.lowestBlocktimePaymentExpiry(invoice)
         const state = this.interferState(invoice)
         return {
-            state: state,
-            cltvTimeoutBlockHeight: cltvTimeout
+            state: state
         }
         
     }
@@ -25,7 +23,7 @@ export class LndHodlInvoiceService {
         } else if (new Date(invoice.expires_at).getTime() > Date.now()) {
             return HodlInvoiceState.PENDING
         } else {
-            return HodlInvoiceState.EXPIRED
+            return HodlInvoiceState.CANCELED
         }
     }
 
@@ -40,16 +38,15 @@ export class LndHodlInvoiceService {
         const timeouts = invoice.payments.map(payment => payment.timeout)
         return Math.min(...timeouts)
     }
-    static invoiceToUpdate(invoice: ln.GetInvoiceResult, node: LndNode): HodlInvoiceStateChange {
+    static invoiceToUpdate(invoice: ln.GetInvoiceResult): HodlInvoiceStateChange {
         return {
-            state: this.interferState(invoice),
-            cltvTimeoutBlockHeight: this.lowestBlocktimePaymentExpiry(invoice)
+            state: this.interferState(invoice)
         }
     }
 
     static async listenStateEvents(paymentHash: string, node: LndNode, callback: (change: HodlInvoiceStateChange) => any) {
         node.subscribeToInvoice(paymentHash, async invoice => { // Subscribe for new states
-            const change = this.invoiceToUpdate(invoice, node)
+            const change = this.invoiceToUpdate(invoice)
             await callback(change)
         })
     }
