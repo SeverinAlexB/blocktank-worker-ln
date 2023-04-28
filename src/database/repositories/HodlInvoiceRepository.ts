@@ -3,7 +3,7 @@ import { HodlInvoice } from '../entities/HodlInvoice.entity';
 import { LndNode } from '../../1_lnd/LndNode';
 import { LightningInvoice } from '../../1_lnd/LightningInvoice';
 import { HodlInvoiceState } from '../../1_lnd/hodl/HodlInvoiceState';
-import { LndHodlInvoiceService } from '../../1_lnd/hodl/LndHodlInvoiceService';
+
 
 export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {
     async createByNodeAndPersist(amountSat: number, description: string, node: LndNode) {
@@ -24,6 +24,12 @@ export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {
     async cancelAndPersist(invoice: HodlInvoice, node: LndNode) {
         await node.cancelHodlInvoice(invoice.id)
         invoice.state = HodlInvoiceState.CANCELED
+        this.em.persist(invoice)
+    }
+
+    async settleAndPersist(invoice: HodlInvoice, node: LndNode) {
+        await node.settleHodlInvoice(invoice.secret)
+        invoice.state = HodlInvoiceState.PAID
         this.em.persist(invoice)
     }
 }

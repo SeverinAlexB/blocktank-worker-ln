@@ -62,6 +62,26 @@ export class LndNode {
     }
 
     /**
+     * All hold invoices, that are currently holding the payment.
+     * @returns 
+     */
+    async getHoldingHodlInvoices(): Promise<ln.GetInvoiceResult[]> {
+        const invoices: ln.GetInvoiceResult[] = []
+        let paginationToken = undefined
+        while (true) {
+            const page = await ln.getInvoices({lnd: this.rpc, is_unconfirmed: true, token: paginationToken})
+            const holdInvoices = page.invoices.filter(invoice => invoice.is_held)
+            invoices.push(...holdInvoices as any)
+            if (page.next === undefined) {
+                break
+            }
+            paginationToken = page.next as any
+        }
+        return invoices
+
+    }
+
+    /**
      * Subscribes to invoices changes.
      */
     public subscribeToInvoice(paymentHash: string, callback: (invoice: ln.GetInvoiceResult) => any) {

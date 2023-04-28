@@ -35,7 +35,7 @@ export class LndHodlInvoiceService {
      * @param invoice 
      * @returns 
      */
-    private static lowestBlocktimePaymentExpiry(invoice: ln.GetInvoiceResult): number | undefined {
+     static lowestBlocktimePaymentExpiry(invoice: ln.GetInvoiceResult): number | undefined {
         if (!invoice.payments || invoice.payments.length === 0) return undefined
         const timeouts = invoice.payments.map(payment => payment.timeout)
         return Math.min(...timeouts)
@@ -53,4 +53,7 @@ export class LndHodlInvoiceService {
             await callback(change)
         })
     }
+
+
+
 }
