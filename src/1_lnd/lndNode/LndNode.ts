@@ -102,6 +102,27 @@ export class LndNode {
         return await ln.getChainFeeRate({lnd: this.rpc, confirmation_target: confirmationTarget})
     }
 
+    /**
+     * Add peer to node.
+     * @param pubkey Lightning public key
+     * @param address Like ip:port or tor:port.
+     * @param timeout How long to wait for the peer to connect. Default: 10,000ms.
+     */
+    async addPeer(pubkey: string, address:string, timeout=10000): Promise<void> {
+        await ln.addPeer({lnd: this.rpc, socket: address, public_key: pubkey, timeout})
+    }
+
+    async openChannel(pubkey:string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): Promise<ln.OpenChannelResult> {
+        return await ln.openChannel({
+            lnd: this.rpc, 
+            local_tokens: 
+            localBalanceSat, 
+            give_tokens: pushBalanceSat, 
+            partner_public_key: pubkey, 
+            is_private: isPrivate,
+            min_confirmations: 0
+        })
+    }
 
 
 }

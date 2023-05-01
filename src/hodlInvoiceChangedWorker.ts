@@ -1,6 +1,6 @@
 import { waitOnSigint, BlocktankDatabase } from "blocktank-worker2"
 import dbConfig from './mikro-orm.config'
-import { HodlInvoiceWatcher } from "./services/HodlInvoiceWatcher"
+import { HodlInvoiceWatcher } from "./worker/HodlInvoiceWatcher"
 import { LndNodeManager } from "./1_lnd/lndNode/LndNodeManager"
 
 

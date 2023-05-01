@@ -1,6 +1,8 @@
 import {BlocktankDatabase, WorkerImplementation} from 'blocktank-worker2'
 import { HodlInvoice } from '../2_database/entities/HodlInvoice.entity';
 import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager';
+import { ChannelOpenService } from '../services/ChannelOpenService';
+import { OpenChannelOrder } from '../2_database/entities/OpenChannelOrder.entity';
 
 export class LightningWorkerImplementation extends WorkerImplementation {
 
@@ -64,6 +66,18 @@ export class LightningWorkerImplementation extends WorkerImplementation {
             throw new Error('Invoice not found')
         }
         return invoice
+    }
+
+    /**
+     * Opens a channel to the specified node.
+     * @param connectionString pubkey@ip:port or pubkey@tor:port
+     * @param isPrivate True if the channel should be private.
+     * @param localBalanceSat Number of satoshi to commit to the channel.
+     * @param pushBalanceSat Number of satoshi to push to the node.
+     * @returns 
+     */
+    async openChannel(connectionString: string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): Promise<OpenChannelOrder> {
+        return await ChannelOpenService.openChannel(connectionString, isPrivate, localBalanceSat, pushBalanceSat)
     }
 
 }

@@ -6,7 +6,7 @@ import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager'
 import { BlocktankDatabase } from 'blocktank-worker2'
 import {sleep} from 'blocktank-worker2/dist/utils';
 import { HodlInvoice } from '../2_database/entities/HodlInvoice.entity'
-import {HodlInvoiceWatcher} from '../services/HodlInvoiceWatcher'
+import {HodlInvoiceWatcher} from './HodlInvoiceWatcher'
 import { HodlInvoiceState } from '../2_database/entities/HodlInvoiceState'
 
 const config: ILndNodeConfig = {
