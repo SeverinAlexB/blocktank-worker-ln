@@ -15,22 +15,22 @@ export class HodlInvoiceRepository extends EntityRepository<HodlInvoice> {
         invoice.tokens = lndInvoice.tokens
         invoice.secret = lndInvoice.secret
         invoice.createdAt = new Date(lndInvoice.created_at)
+        invoice.updatedAt = new Date(lndInvoice.created_at)
         invoice.expiresAt = lnInvoice.expiresAt
         invoice.pubkey = node.publicKey
-        this.em.persist(invoice)
+        await this.em.persistAndFlush(invoice)
         return invoice
     }
 
     async cancelAndPersist(invoice: HodlInvoice, node: LndNode) {
         await node.cancelHodlInvoice(invoice.paymentHash)
-        invoice.state = HodlInvoiceState.CANCELED
-        this.em.persist(invoice)
+        await this.em.persistAndFlush(invoice)
     }
 
     async settleAndPersist(invoice: HodlInvoice, node: LndNode) {
         await node.settleHodlInvoice(invoice.secret)
         invoice.state = HodlInvoiceState.PAID
-        this.em.persist(invoice)
+        await this.em.persistAndFlush(invoice)
     }
 
     async getAllOpen() {

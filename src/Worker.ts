@@ -1,19 +1,18 @@
 import { Worker, waitOnSigint } from 'blocktank-worker2';
 import {BlocktankDatabase} from 'blocktank-worker2'
-import {LightningWorkerImplementation} from './worker/WorkerImplementation';
-// import { GrapeServerConfig } from 'blocktank-worker/dist/grenache/GrapeServerConfig';
-// const NodeMan = require('./NodeMan')
-// import * as fs from 'fs';
-// import * as path from 'path';
+import {LightningWorkerImplementation} from './worker/LightningWorkerImplementation';
+import { Config } from './1_config/Config';
+import dbConfig from './mikro-orm.config'
 
+const config = Config.get()
 
 async function main() {
   
   const worker = new Worker(new LightningWorkerImplementation(), {
-    name: 'svc:ln',
+    name: config.workerName,
   })
   try {
-    await BlocktankDatabase.connect('./mikro-orm.config.ts')
+    await BlocktankDatabase.connect(dbConfig)
     await worker.start()
     console.log(`Worker "${worker.config.name}" started. Ctrl+C to stop.`)
     await waitOnSigint()

@@ -5,7 +5,7 @@ import { Config } from "../1_config/Config";
 import { interferInvoiceChangedAt, interferInvoiceState } from "../2_database/entities/HodlInvoiceState";
 import { LndNodeList } from "../1_lnd/lndNode/LndNodeList";
 import { LndNode } from "../1_lnd/lndNode/LndNode";
-import { IInvoiceStateChangedEvent } from "./InvoiceStateChangedEvent";
+import { toInvoiceStateChangedEvent } from "../events/IInvoiceStateChangedEvent";
 
 const config = Config.get()
 
@@ -19,9 +19,13 @@ export class HodlInvoiceWatcher {
     private publisher: RabbitPublisher = new RabbitPublisher(config.workerName)
     private interval: NodeJS.Timer
 
-    async watch(nodes: LndNode[]) {
+    async init(nodes: LndNode[]) {
         this.nodes = new LndNodeList(nodes)
         await this.publisher.init()
+    }
+
+    async watch(nodes: LndNode[]) {
+        await this.init(nodes)
         await this.subscribeToChanges()
         this.interval = setInterval(async () => {
             await this.subscribeToChanges()
@@ -38,38 +42,37 @@ export class HodlInvoiceWatcher {
         const repo = em.getRepository(HodlInvoice)
         const invoices = await repo.getAllOpen()
         for (const invoice of invoices) {
-            const doWeListenAlready = this.listenAlready.get(invoice.paymentHash)
-            if (doWeListenAlready) {
-                continue
-            }
-
-            const node = this.nodes.byPublicKey(invoice.pubkey)
-            node.subscribeToInvoice(invoice.paymentHash, async lndInvoice => {
-                await this.onInvoiceEvent(invoice, lndInvoice)
-            })
-            console.log('Subscribed to invoice', invoice.paymentHash, invoice.state)
-            this.listenAlready.set(invoice.paymentHash, true)
+            await this.listenToInvoice(invoice)
         }
     }
 
-    private async onInvoiceEvent(invoice: HodlInvoice, lndInvoice: ln.GetInvoiceResult) {
+    async listenToInvoice(invoice: HodlInvoice) {
+        const doWeListenAlready = this.listenAlready.get(invoice.paymentHash)
+        if (doWeListenAlready) {
+            return
+        }
+
+        const node = this.nodes.byPublicKey(invoice.pubkey)
+        node.subscribeToInvoice(invoice.paymentHash, async lndInvoice => {
+            await this.onInvoiceEvent(lndInvoice)
+        })
+        console.log('Subscribed to invoice', invoice.paymentHash, invoice.state)
+        this.listenAlready.set(invoice.paymentHash, true)
+    }
+
+    private async onInvoiceEvent(lndInvoice: ln.GetInvoiceResult) {
+        const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
+        const invoice = await repo.findOne({paymentHash: lndInvoice.id})
         const oldState = invoice.state
         const newState = interferInvoiceState(lndInvoice)
-        console.log(`paymentHash ${invoice.paymentHash} ${oldState} to ${newState}`)
+        console.log(`paymentHash ${invoice.paymentHash} - ${oldState} to ${newState}`)
         const stateChanged = newState !== invoice.state
         if (stateChanged) {
             // State changed
+            invoice.updatedAt = interferInvoiceChangedAt(lndInvoice)
             invoice.state = newState
             await BlocktankDatabase.createEntityManager().persistAndFlush(invoice)
-            const changedAt = interferInvoiceChangedAt(lndInvoice)
-            const event: IInvoiceStateChangedEvent = {
-                paymentHash: invoice.paymentHash,
-                state: {
-                    old: oldState,
-                    new: newState
-                },
-                changedAt: changedAt
-            }
+            const event = toInvoiceStateChangedEvent(invoice, oldState, newState)
             await this.publisher.publish('invoice.changed', event)
         }
     }

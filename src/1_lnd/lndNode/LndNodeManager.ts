@@ -50,6 +50,9 @@ export class LndNodeManager {
         return this.nodes.find(node => node.publicKey === publicKey)
     }
 
+    /**
+     * Returns a multi line description of the configured nodes.
+     */
     static get description(): string {
         const lines = this.nodes.map(node => {
             return `${node.alias} ${node.publicKey} ${node.version}`

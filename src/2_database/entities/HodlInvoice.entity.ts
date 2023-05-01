@@ -40,6 +40,9 @@ export class HodlInvoice {
     state: HodlInvoiceState = HodlInvoiceState.PENDING;
 
     @Property()
+    updatedAt: Date;
+
+    @Property()
     createdAt: Date;
 
     @Property()
