@@ -7,9 +7,9 @@
       {
         "type": "node",
         "request": "launch",
-        "name": "invoice changed worker",
+        "name": "LND watcher",
         "skipFiles": ["<node_internals>/**"],
-        "program": "${workspaceFolder}/src/hodlInvoiceChangedWorker.ts",
+        "program": "${workspaceFolder}/src/lndWatcher.ts",
         "preLaunchTask": "npm: build",
         "outFiles": ["${workspaceFolder}/dist/**/*.js"],
         "outputCapture": "std",

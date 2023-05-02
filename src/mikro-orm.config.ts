@@ -5,7 +5,7 @@ import entities from './2_database/entities';
 
 const config: Partial<MikroORMOptions<MongoDriver>> = {
   entities: entities,
-  clientUrl: 'mongodb://0.0.0.0:27017',
+  clientUrl: 'mongodb://0.0.0.0:27017/blocktank-worker-ln',
   metadataProvider: ReflectMetadataProvider,
   debug: false,
   type: 'mongo'

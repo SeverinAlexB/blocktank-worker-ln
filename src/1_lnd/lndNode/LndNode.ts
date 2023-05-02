@@ -138,16 +138,29 @@ export class LndNode {
         })
     }
 
+    async getPendingChannels(): Promise<ln.GetPendingChannelsResult['pending_channels']> {
+        const channels = await ln.getPendingChannels({
+            lnd: this.rpc
+        })
+        return channels.pending_channels
+    }
+
 
     /**
      * Get channel by funding transaction id and node pubkey
      * @param txId Funding transaction id
      * @param pubkey Node pubkey
      */
-    async getChannel(txId: string, txVout: number, pubkey: string): Promise<ln.GetChannelsResult['channels'][0]> {
+    async getChannel(txId: string, txVout: number, pubkey: string): Promise<ln.GetChannelsResult['channels'][0] | ln.GetPendingChannelsResult['pending_channels'][0]> {
         const channels = await this.getChannels(pubkey)
         const result = channels.channels.find(channel => channel.transaction_id === txId && channel.transaction_vout === txVout)
-        return result
+        if (result) {
+            return result
+        }
+        // not found so try pending channels
+        const pending = await this.getPendingChannels()
+        const match = pending.find(channel => channel.transaction_id === txId && channel.transaction_vout === txVout)
+        return match
     }
 
     /**

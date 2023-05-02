@@ -18,14 +18,15 @@ export class OpenChannelWatcher {
     private publisher: RabbitPublisher = new RabbitPublisher(config.workerName)
 
 
-    async init(nodes: LndNode[]) {
+    async _init(nodes: LndNode[]) {
         this.nodes = new LndNodeList(nodes)
         await this.publisher.init()
     }
 
     async watch(nodes: LndNode[]) {
-        await this.init(nodes)
+        await this._init(nodes)
         await this.listenToChannelChanges()
+        await this.pullAllChanges()
     }
 
     async stop() {
@@ -38,21 +39,32 @@ export class OpenChannelWatcher {
         return await repo.getAllOpenOrPending()
     }
 
+    /**
+     * Sync all order in our db with the node in case we missed an update.
+     */
     async pullAllChanges() {
         const orders = await this.getAllOpenOrPendingOrders()
         for (const order of orders) {
             const state = await ChannelOpenService.getChannelState(order)
-            await this.onChannelChanged(order.id, state)
+            if (state !== order.state) {
+                await this.onChannelChanged(order.id, state)
+            }
         }
     }
 
+    /**
+     * Listen to any channel changes on the node.
+     */
     async listenToChannelChanges() {
         for (const node of this.nodes.nodes) {
             node.subscribeToChannels(async (eventName, data) => {
+                console.log('Channel event', eventName, data)
                 const txId = data.transaction_id
                 const txVout = data.transaction_vout
-                const order = await BlocktankDatabase.createEntityManager().getRepository(OpenChannelOrder).getByTx(txId, txVout)
+                const repo = BlocktankDatabase.createEntityManager().getRepository(OpenChannelOrder)
+                const order = await repo.getByTx(txId, txVout)
                 if (!order) {
+                    console.log('No order is associated with this event.', txId, txVout)
                     return
                 }
                 if (eventName === 'channel_opened') {
@@ -62,7 +74,7 @@ export class OpenChannelWatcher {
                 } else {
                     throw new Error(`Unknown event ${eventName}`)
                 }
-                
+
             })
         }
     }
@@ -70,16 +82,18 @@ export class OpenChannelWatcher {
     private async onChannelChanged(orderId: string, newState: OpenChannelOrderState) {
         // Create transaction so the state change is atomic.
         let oldState: OpenChannelOrderState
-        await BlocktankDatabase.orm.em.transactional(async (em) => {
-            const order = await em.findOneOrFail(OpenChannelOrder, {id: orderId})
-            oldState = order.state
-            const stateChanged = order.state != newState
-            if (!stateChanged) {
-                return
-            }
-            order.state = newState
-            em.persist(order)
-        })
+        const em = BlocktankDatabase.createEntityManager()
+
+        const order = await em.findOneOrFail(OpenChannelOrder, { id: orderId })
+        oldState = order.state
+        const stateChanged = order.state != newState
+        if (!stateChanged) {
+            return
+        }
+        console.log('new state', order.state, 'to', newState)
+        order.state = newState
+        em.persist(order)
+        await em.flush()
         const event = {
             orderId: orderId,
             state: {

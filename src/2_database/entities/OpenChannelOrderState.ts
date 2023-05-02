@@ -7,7 +7,7 @@ export enum OpenChannelOrderState {
 }
 
 
-export function interferOpenChannelOrderState(channel: ln.GetChannelsResult['channels'][0]) {
+export function interferOpenChannelOrderState(channel: ln.GetChannelsResult['channels'][0] | ln.GetPendingChannelsResult['pending_channels'][0]) {
     if (!channel) {
         return OpenChannelOrderState.CLOSED
     } else if (channel.is_opening) {

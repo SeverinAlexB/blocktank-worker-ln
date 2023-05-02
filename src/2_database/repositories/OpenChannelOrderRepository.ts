@@ -9,6 +9,6 @@ export class OpenChannelOrderRepository extends EntityRepository<OpenChannelOrde
     }
 
     async getByTx(txId: string, txVout: number): Promise<OpenChannelOrder | null> {
-        return this.findOne({ txId, txVout })
+        return await this.findOne({ txId, txVout })
     }
 }
