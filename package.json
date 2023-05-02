@@ -14,7 +14,7 @@
   "scripts": {
     "test": "npx jest",
     "build": "tsc",
-    "start": "npm run build && node dist/worker.js",
+    "start-worker": "npm run build && node dist/worker.js",
     "watch-lnd": "npm run build && node dist/lndWatcher.js"
   },
   "repository": {

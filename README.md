@@ -2,6 +2,15 @@
 
 Microservice worker to interact with Lightning Network Node
 
+## Usage
+
+* `npm install` Install dependencies.
+* `npm run build` Build the project.
+* `npm run start-worker` Start the worker to listen on the API.
+* `npm run watch-lnd` Listens to LND events.
+
+Configuration is done with the `config.json` file in the root of this project. See `config.json.example` for an example.
+
 
 ## APIs
 

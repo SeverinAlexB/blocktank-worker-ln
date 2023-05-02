@@ -1,4 +1,7 @@
 {
+  "workerName": "svc:ln2",
+  "workerPort": 10039,
+  "grapeUrl": "http://127.0.0.1:30001",
   "nodes": [
     {
       "certPath": "/Users/severinbuhler/.polar/networks/3/volumes/lnd/alice/tls.cert",

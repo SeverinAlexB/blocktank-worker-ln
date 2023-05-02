@@ -10,6 +10,8 @@ async function main() {
   
   const worker = new Worker(new LightningWorkerImplementation(), {
     name: config.workerName,
+    port: config.workerPort,
+    grapeUrl: config.grapeUrl
   })
   try {
     await BlocktankDatabase.connect(dbConfig)
