@@ -5,13 +5,13 @@ const config = {
     entities: entities.default,
     debug: false,
     type: 'mongo',
-    clientUrl: 'mongodb://0.0.0.0:27017/blocktank-worker-ln',
+    // clientUrl: 'mongodb://0.0.0.0:27017/blocktank-worker-ln',
   };
 
 
 global.beforeAll(async () => {
-    await BlocktankDatabase.connect(config)
-    // await BlocktankDatabase.connectInMemory(config)
+    // await BlocktankDatabase.connect(config)
+    await BlocktankDatabase.connectInMemory(config)
 });
 
 global.afterEach(async () => {

@@ -26,7 +26,7 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @param paymentHash 
      * @returns 
      */
-    async cancelHodlInvoice(paymentHash: string) {
+    async cancelHodlInvoice(paymentHash: string): Promise<void> {
 
         const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
         const invoice = await repo.findOne({'paymentHash': paymentHash})
@@ -35,7 +35,6 @@ export class LightningWorkerImplementation extends WorkerImplementation {
         }
         const node = LndNodeManager.byPublicKey(invoice.pubkey)
         await node.cancelHodlInvoice(invoice.paymentHash)
-        return true
     }
 
     /**
@@ -43,7 +42,7 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @param paymentHash 
      * @returns 
      */
-    async settleHodlInvoice(paymentHash: string) {
+    async settleHodlInvoice(paymentHash: string): Promise<void> {
         const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
         const invoice = await repo.findOne({paymentHash: paymentHash})
         if (!invoice) {
@@ -51,7 +50,6 @@ export class LightningWorkerImplementation extends WorkerImplementation {
         }
         const node = LndNodeManager.byPublicKey(invoice.pubkey)
         node.settleHodlInvoice(invoice.secret)
-        return true
     }
 
     /**
@@ -76,8 +74,17 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @param pushBalanceSat Number of satoshi to push to the node.
      * @returns 
      */
-    async openChannel(connectionString: string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): Promise<OpenChannelOrder> {
+    async orderChannel(connectionString: string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): Promise<OpenChannelOrder> {
         return await ChannelOpenService.openChannel(connectionString, isPrivate, localBalanceSat, pushBalanceSat)
+    }
+
+    /**
+     * Returns the channel order.
+     * @param id Id of the order.
+     * @returns 
+     */
+    async getOrderedChannel(id: string): Promise<OpenChannelOrder> {
+        return await ChannelOpenService.getChannelOrder(id)
     }
 
 }

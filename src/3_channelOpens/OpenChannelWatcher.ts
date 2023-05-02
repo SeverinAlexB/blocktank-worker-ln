@@ -5,6 +5,7 @@ import { LndNode } from "../1_lnd/lndNode/LndNode";
 import { OpenChannelOrder } from "../2_database/entities/OpenChannelOrder.entity";
 import { OpenChannelOrderState } from "../2_database/entities/OpenChannelOrderState";
 import { ChannelOpenService } from "./openService/ChannelOpenService";
+import { toChannelUpdateEvent } from "./IChannelUpdateEvent";
 
 
 const config = Config.get()
@@ -94,13 +95,7 @@ export class OpenChannelWatcher {
         order.state = newState
         em.persist(order)
         await em.flush()
-        const event = {
-            orderId: orderId,
-            state: {
-                old: oldState,
-                new: newState
-            }
-        }
-        await this.publisher.publish('channel.update', event)
+        const event = toChannelUpdateEvent(order, oldState, newState)
+        await this.publisher.publish('channelChanged', event)
     }
 }

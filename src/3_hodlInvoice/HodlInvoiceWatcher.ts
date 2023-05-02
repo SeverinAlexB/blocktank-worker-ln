@@ -73,7 +73,7 @@ export class HodlInvoiceWatcher {
             invoice.state = newState
             await BlocktankDatabase.createEntityManager().persistAndFlush(invoice)
             const event = toInvoiceStateChangedEvent(invoice, oldState, newState)
-            await this.publisher.publish('invoice.changed', event)
+            await this.publisher.publish('invoiceChanged', event)
         }
     }
 

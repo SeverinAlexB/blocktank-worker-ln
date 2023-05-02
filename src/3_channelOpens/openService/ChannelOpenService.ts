@@ -58,4 +58,11 @@ export class ChannelOpenService {
         const channel = await node.getChannel(order.txId, order.txVout, order.peerPublicKey)
         return interferOpenChannelOrderState(channel)
     }
+
+    static async getChannelOrder(id: string) {
+        const em = BlocktankDatabase.createEntityManager()
+        return await em.findOne(OpenChannelOrder, {
+            id: id
+        })
+    }
 }
