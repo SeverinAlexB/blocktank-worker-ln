@@ -9,26 +9,30 @@ Microservice worker to interact with Lightning Network Node
 * `npm run start-worker` Start the worker to listen on the API.
 * `npm run watch-lnd` Listens to LND events.
 
+## Configuration
+
 Configuration is done with the `config.json` file in the root of this project. See `config.json.example` for an example.
+
+**Multiple nodes** can be configured. When creating a HODL invoice or a channel, the node will be selected randomly.
 
 
 ## APIs
 
 ### HODL invoices
 
-* `createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): Promise<HodlInvoice>`
+* `createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): HodlInvoice`
     * amountSat: amount in satoshis.
     * description: description of the invoice.
     * expiresInMs: time in milliseconds until the invoice expires. Default 1 hour.
     * Returns HodlInvoice object.
 
-* `cancelHodlInvoice(paymentHash: string): Promise<void>`
+* `cancelHodlInvoice(paymentHash: string): void`
     * paymentHash: payment hash of the invoice to cancel.
 
-* `settleHodlInvoice(paymentHash: string): Promise<void>`
+* `settleHodlInvoice(paymentHash: string): void`
     * paymentHash: payment hash of the invoice to settle.
 
-* `getHodlInvoice(paymentHash: string): Promise<HodlInvoice>`
+* `getHodlInvoice(paymentHash: string): HodlInvoice`
     * paymentHash: payment hash of the invoice to get.
     * Returns HodlInvoice object.
 
@@ -59,14 +63,16 @@ export interface IInvoiceStateChangedEvent {
 
 Open a channel with a peer. This includes establishing the peer connection.
 
-* `orderChannel(connectionString: string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): Promise<OpenChannelOrder>`
+* `orderChannel(connectionString: string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): OpenChannelOrder`
     * connectionString: connection string of the peer to open the channel with. pubkey@host:port
     * isPrivate: whether the channel should be private or not.
     * localBalanceSat: amount of satoshis to commit to the channel.
     * pushBalanceSat: amount of satoshis to push to the peer. Default 0.
     * Returns OpenChannelOrder object.
+    * Throws `ChannelOpenError` if the channel could not be opened.
+        * `error.code` show the reason.
 
-* `getOrderedChannel(id: string): Promise<OpenChannelOrder>`
+* `getOrderedChannel(id: string): OpenChannelOrder`
     * id: id of the order to get.
     * Returns OpenChannelOrder object.
 
@@ -92,9 +98,8 @@ export interface IChannelUpdateEvent {
 }
 ```
 
-### General node info
-
-Get general node information, such as balance, channels, peers, etc.
-
 ### Onchain balance monitoring
 
+## Testing
+
+Most tests are not working because they require e2e testing with multiple LND nodes.
