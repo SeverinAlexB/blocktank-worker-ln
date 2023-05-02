@@ -1,16 +1,10 @@
-import {ILndNodeConfig} from '../1_config/ILndNodeConfig'
-import { readLndConnectionInfo2 } from '../1_lnd/lndNode/ILndConnectionInfo'
-import { LndNode } from '../1_lnd/lndNode/LndNode'
-import {LightningWorkerImplementation} from '../worker/LightningWorkerImplementation'
-import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager'
-import { BlocktankDatabase } from 'blocktank-worker2'
-import {sleep} from 'blocktank-worker2/dist/utils';
-import { HodlInvoice } from '../2_database/entities/HodlInvoice.entity'
-import {HodlInvoiceWatcher} from '../worker/HodlInvoiceWatcher'
-import { HodlInvoiceState } from '../2_database/entities/HodlInvoiceState'
+import {ILndNodeConfig} from '../../1_config/ILndNodeConfig'
+import { readLndConnectionInfo2 } from '../../1_lnd/lndNode/ILndConnectionInfo'
+import { LndNode } from '../../1_lnd/lndNode/LndNode'
+import { LndNodeManager } from '../../1_lnd/lndNode/LndNodeManager'
 import { ChannelOpenService } from './ChannelOpenService'
-import { OpenChannelOrder } from '../2_database/entities/OpenChannelOrder.entity'
-import { OpenChannelOrderState } from '../2_database/entities/OpenChannelOrderState'
+
+import { OpenChannelOrderState } from '../../2_database/entities/OpenChannelOrderState'
 import { ChannelOpenError } from './ChannelOpenError'
 
 const config: ILndNodeConfig = {
@@ -41,7 +35,7 @@ describe('ChannelOpenService', () => {
         const connectionString = '036d55df4877f1c5cbcc57d6eba65b07d16598396aa8de8a57c6e21cdeae7f0c8e@172.24.0.4:9735'
 
         const open = await ChannelOpenService.openChannel(connectionString, false, 100000, 50000)
-        expect(open.publicKey).toEqual('036d55df4877f1c5cbcc57d6eba65b07d16598396aa8de8a57c6e21cdeae7f0c8e')
+        expect(open.peerPublicKey).toEqual('036d55df4877f1c5cbcc57d6eba65b07d16598396aa8de8a57c6e21cdeae7f0c8e')
         expect(open.isPrivate).toEqual(false)
         expect(open.state).toEqual(OpenChannelOrderState.OPENING)
     });
@@ -54,8 +48,12 @@ describe('ChannelOpenService', () => {
         expect(restored.codeNumber).toEqual(1)
     });
 
-
-
+    test('GetChannel with txid', async () => {
+        const pubkey = '036d55df4877f1c5cbcc57d6eba65b07d16598396aa8de8a57c6e21cdeae7f0c8e'
+        const node = LndNodeManager.nodes[0]
+        const channel = await node.getChannel('10ee88293e3d7dfb9bfba0804103a4873aa69dcfb8a32b09cf03e29958ec11cb', 0, pubkey)
+        expect(channel.id).toEqual('487x1x0')
+    });
 });
 
 

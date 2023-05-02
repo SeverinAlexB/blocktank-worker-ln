@@ -1,8 +1,8 @@
 import {BlocktankDatabase, WorkerImplementation} from 'blocktank-worker2'
 import { HodlInvoice } from '../2_database/entities/HodlInvoice.entity';
 import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager';
-import { ChannelOpenService } from '../services/ChannelOpenService';
 import { OpenChannelOrder } from '../2_database/entities/OpenChannelOrder.entity';
+import { ChannelOpenService } from '../3_channelOpens/openService/ChannelOpenService';
 
 export class LightningWorkerImplementation extends WorkerImplementation {
 

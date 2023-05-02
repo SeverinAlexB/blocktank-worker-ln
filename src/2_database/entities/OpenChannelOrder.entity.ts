@@ -3,14 +3,15 @@ import { ObjectId } from "@mikro-orm/mongodb";
 import { HodlInvoiceRepository } from "../repositories/HodlInvoiceRepository";
 import * as crypto from 'crypto';
 import {OpenChannelOrderState} from './OpenChannelOrderState'
+import { OpenChannelOrderRepository } from "../repositories/OpenChannelOrderRepository";
 
 
 
 @Entity({
-    // customRepository: () => HodlInvoiceRepository,
+    customRepository: () => OpenChannelOrderRepository,
 })
 export class OpenChannelOrder {
-    // [EntityRepositoryType]?: HodlInvoiceRepository;
+    [EntityRepositoryType]?: OpenChannelOrderRepository;
 
     @PrimaryKey()
     _id!: ObjectId;
@@ -19,7 +20,10 @@ export class OpenChannelOrder {
     id: string = crypto.randomUUID();
 
     @Property()
-    publicKey: string
+    ourPublicKey: string
+
+    @Property()
+    peerPublicKey: string
 
     @Property()
     address: string;

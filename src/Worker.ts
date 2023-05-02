@@ -1,6 +1,6 @@
 import { Worker, waitOnSigint } from 'blocktank-worker2';
 import {BlocktankDatabase} from 'blocktank-worker2'
-import {LightningWorkerImplementation} from './worker/LightningWorkerImplementation';
+import {LightningWorkerImplementation} from './3_api/LightningWorkerImplementation';
 import { Config } from './1_config/Config';
 import dbConfig from './mikro-orm.config'
 

@@ -5,7 +5,7 @@ import { Config } from "../1_config/Config";
 import { interferInvoiceChangedAt, interferInvoiceState } from "../2_database/entities/HodlInvoiceState";
 import { LndNodeList } from "../1_lnd/lndNode/LndNodeList";
 import { LndNode } from "../1_lnd/lndNode/LndNode";
-import { toInvoiceStateChangedEvent } from "../events/IInvoiceStateChangedEvent";
+import { toInvoiceStateChangedEvent } from "./IInvoiceStateChangedEvent";
 
 const config = Config.get()
 
