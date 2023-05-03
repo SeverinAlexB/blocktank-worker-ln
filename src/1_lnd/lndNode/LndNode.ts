@@ -43,18 +43,6 @@ export class LndNode {
         await this.getInfo()
     }
 
-    // async isReady(minOnchainBalanceSat: number = 1 * 100*1000*1000): Promise<boolean> {
-    //     const info = await this.getInfo()
-    //     if (!info.is_synced_to_chain) {
-    //         return false
-    //     }
-    //     const balanceSat = await this.getOnchainBalance()
-    //     if (balanceSat < minOnchainBalanceSat) {
-    //         return false
-    //     }
-    //     return true
-    // }
-
     async getInfo(): Promise<ln.GetWalletInfoResult> {
         const info = await ln.getWalletInfo({ lnd: this.rpc })
         this.latestGetInfo = info
@@ -82,6 +70,11 @@ export class LndNode {
 
     async getInvoice(paymentHash: string): Promise<ln.GetInvoiceResult> {
         return await ln.getInvoice({ lnd: this.rpc, id: paymentHash })
+    }
+
+    async createInvoice(amountSat: number, description: string, expiresInMs: number = 60 * 60 * 1000): Promise<ln.CreateInvoiceResult> {
+        const expiredAt = new Date(Date.now() + expiresInMs)
+        return await ln.createInvoice({ lnd: this.rpc, tokens: amountSat, description: description, expires_at: expiredAt.toISOString() })
     }
 
     /**

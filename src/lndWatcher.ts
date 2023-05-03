@@ -1,6 +1,6 @@
 import { waitOnSigint, BlocktankDatabase } from "blocktank-worker2"
 import dbConfig from './mikro-orm.config'
-import { HodlInvoiceWatcher } from "./3_hodlInvoice/HodlInvoiceWatcher"
+import { Bolt11InvoiceWatcher } from "./3_hodlInvoice/Bolt11InvoiceWatcher"
 import { LndNodeManager } from "./1_lnd/lndNode/LndNodeManager"
 import { OpenChannelWatcher } from "./3_channelOpens/OpenChannelWatcher"
 import { OnchainBalanceMonitor } from "./3_balanceMonitor/OnchainBalanceMonitor"
@@ -12,7 +12,7 @@ const config = Config.get()
  * Worker that watches HodlInvoices on LND, updates our database and publishes events to rabbitMq.
  */
 async function main() {
-    const watcher = new HodlInvoiceWatcher()
+    const watcher = new Bolt11InvoiceWatcher()
     const channelWatcher = new OpenChannelWatcher()
     const balanceMonitor = new OnchainBalanceMonitor()
     try {

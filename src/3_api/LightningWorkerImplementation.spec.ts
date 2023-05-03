@@ -7,7 +7,7 @@ import { BlocktankDatabase } from 'blocktank-worker2'
 import {sleep} from 'blocktank-worker2/dist/utils';
 import { Bolt11Invoice } from '../2_database/entities/Bolt11Invoice.entity'
 import { Bolt11InvoiceState } from '../2_database/entities/Bolt11InvoiceState'
-import {HodlInvoiceWatcher} from '../3_hodlInvoice/HodlInvoiceWatcher'
+import {Bolt11InvoiceWatcher} from '../3_hodlInvoice/Bolt11InvoiceWatcher'
 
 const config: ILndNodeConfig = {
     grpcSocket: '127.0.0.1:10001',
@@ -51,7 +51,7 @@ describe('WorkerImplementation', () => {
     });
 
     test('Cancel invoice', async () => {
-        const watcher = new HodlInvoiceWatcher()
+        const watcher = new Bolt11InvoiceWatcher()
         await watcher.init(LndNodeManager.nodes)
         try {
             const worker = new LightningWorkerImplementation()

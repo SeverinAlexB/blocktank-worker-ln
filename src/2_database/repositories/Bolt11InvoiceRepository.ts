@@ -3,6 +3,8 @@ import { Bolt11Invoice } from '../entities/Bolt11Invoice.entity';
 import { LightningInvoice } from '../../1_lnd/LightningInvoice';
 import { Bolt11InvoiceState } from '../entities/Bolt11InvoiceState';
 import { LndNode } from '../../1_lnd/lndNode/LndNode';
+import * as ln from 'lightning'
+
 
 interface ICreateByNodeAndPersistOptions {
     expiresInMs?: number,
@@ -17,7 +19,13 @@ const defaultCreateByNodeAndPersistOptions: ICreateByNodeAndPersistOptions = {
 export class Bolt11InvoiceRepository extends EntityRepository<Bolt11Invoice> {
     async createByNodeAndPersist(amountSat: number, description: string, node: LndNode, options: Partial<ICreateByNodeAndPersistOptions> = {}) {
         const opts: ICreateByNodeAndPersistOptions = { ...defaultCreateByNodeAndPersistOptions, ...options }
-        const lndInvoice = await node.createHodlInvoice(amountSat, description, opts.expiresInMs)
+        let lndInvoice: ln.CreateHodlInvoiceResult | ln.CreateInvoiceResult
+        if (opts.isHodlInvoice) {
+            lndInvoice = await node.createHodlInvoice(amountSat, description, opts.expiresInMs)
+        } else {
+            lndInvoice = await node.createInvoice(amountSat, description, opts.expiresInMs)
+        }
+        
         const lnInvoice = new LightningInvoice(lndInvoice.request)
         const invoice = new Bolt11Invoice()
         invoice.isHodlInvoice = opts.isHodlInvoice

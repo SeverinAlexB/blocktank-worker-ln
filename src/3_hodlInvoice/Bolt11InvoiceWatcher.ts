@@ -13,7 +13,7 @@ const config = Config.get()
 /**
  * Watcher that subscribes to all open hodl invoices, updates our database and publishes events to RabbitMQ.
  */
-export class HodlInvoiceWatcher {
+export class Bolt11InvoiceWatcher {
     public nodes: LndNodeList;
     private listenAlready: Map<string, boolean> = new Map()
     private publisher: RabbitPublisher = new RabbitPublisher(config.workerName)

@@ -24,11 +24,27 @@ async function nodeFactory(): Promise<LndNode> {
 
 describe('Bolt11Invoice', () => {
 
-    test('Create invoice', async () => {
+    test('Create hold invoice', async () => {
         const node = await nodeFactory()
         const em = BlocktankDatabase.createEntityManager()
         const repo = em.getRepository(Bolt11Invoice)
-        const invoice = await repo.createByNodeAndPersist(1000, 'test', node)
+        const invoice = await repo.createByNodeAndPersist(1000, 'test', node, {isHodlInvoice: true})
+        await em.flush()
+        
+        expect(invoice.createdAt).toBeDefined()
+        expect(invoice.expiresAt).toBeDefined()
+        expect(invoice.request).toBeDefined()
+        expect(invoice.pubkey).toEqual(node.publicKey)
+        expect(invoice.secret).toBeDefined()
+        expect(invoice.state).toEqual(Bolt11InvoiceState.PENDING)
+        expect(invoice.tokens).toEqual(1000)
+    });
+
+    test('Create normal invoice', async () => {
+        const node = await nodeFactory()
+        const em = BlocktankDatabase.createEntityManager()
+        const repo = em.getRepository(Bolt11Invoice)
+        const invoice = await repo.createByNodeAndPersist(1000, 'test', node, {isHodlInvoice: false})
         await em.flush()
         
         expect(invoice.createdAt).toBeDefined()
@@ -55,7 +71,7 @@ describe('Bolt11Invoice', () => {
         const node = await nodeFactory()
         const em = BlocktankDatabase.createEntityManager()
         const repo = em.getRepository(Bolt11Invoice)
-        const invoice = await repo.createByNodeAndPersist(1000, 'test', node)
+        const invoice = await repo.createByNodeAndPersist(1000, 'test', node, {isHodlInvoice: true})
         await em.flush()
         console.log('invoice', invoice.request)
 
@@ -74,7 +90,7 @@ describe('Bolt11Invoice', () => {
         const node = await nodeFactory()
         const em = BlocktankDatabase.createEntityManager()
         const repo = em.getRepository(Bolt11Invoice)
-        const invoice = await repo.createByNodeAndPersist(1000, 'test', node)
+        const invoice = await repo.createByNodeAndPersist(1000, 'test', node, {isHodlInvoice: true})
         await em.flush()
         console.log('invoice', invoice.request)
 
