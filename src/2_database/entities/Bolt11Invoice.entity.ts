@@ -1,23 +1,26 @@
 import { Entity, PrimaryKey, Property, SerializedPrimaryKey, Enum, EntityRepositoryType } from "@mikro-orm/core";
 import { ObjectId } from "@mikro-orm/mongodb";
-import { HodlInvoiceRepository } from "../repositories/HodlInvoiceRepository";
-import { HodlInvoiceState, interferInvoiceState } from "./HodlInvoiceState";
+import { Bolt11InvoiceRepository } from "../repositories/Bolt11InvoiceRepository";
+import { Bolt11InvoiceState, interferInvoiceState } from "./Bolt11InvoiceState";
 import { LightningInvoice } from "../../1_lnd/LightningInvoice";
 import * as crypto from 'crypto';
 import { LndNode } from "../../1_lnd/lndNode/LndNode";
 
 
 @Entity({
-    customRepository: () => HodlInvoiceRepository,
+    customRepository: () => Bolt11InvoiceRepository,
 })
-export class HodlInvoice {
-    [EntityRepositoryType]?: HodlInvoiceRepository;
+export class Bolt11Invoice {
+    [EntityRepositoryType]?: Bolt11InvoiceRepository;
 
     @PrimaryKey()
     _id!: ObjectId;
 
     @SerializedPrimaryKey()
     id: string = crypto.randomUUID();
+
+    @Property()
+    isHodlInvoice: boolean = false;
 
     @Property()
     paymentHash: string
@@ -35,9 +38,9 @@ export class HodlInvoice {
     pubkey: string;
 
     @Enum({
-        type: () => HodlInvoiceState
+        type: () => Bolt11InvoiceState
     })
-    state: HodlInvoiceState = HodlInvoiceState.PENDING;
+    state: Bolt11InvoiceState = Bolt11InvoiceState.PENDING;
 
     @Property()
     updatedAt: Date;

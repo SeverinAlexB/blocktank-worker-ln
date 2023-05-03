@@ -1,5 +1,5 @@
 import {BlocktankDatabase, WorkerImplementation} from 'blocktank-worker2'
-import { HodlInvoice } from '../2_database/entities/HodlInvoice.entity';
+import { Bolt11Invoice } from '../2_database/entities/Bolt11Invoice.entity';
 import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager';
 import { OpenChannelOrder } from '../2_database/entities/OpenChannelOrder.entity';
 import { ChannelOpenService } from '../3_channelOpens/openService/ChannelOpenService';
@@ -13,11 +13,13 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @param expiresInMs Invoice expiry time in milliseconds. Default 1hr
      * @returns 
      */
-    async createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): Promise<HodlInvoice> {
-        const repo = BlocktankDatabase.orm.em.fork().getRepository(HodlInvoice)
-        // const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
+    async createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): Promise<Bolt11Invoice> {
+        const repo = BlocktankDatabase.orm.em.fork().getRepository(Bolt11Invoice)
         const node = LndNodeManager.random
-        const invoice = await repo.createByNodeAndPersist(amountSat, description, node, expiresInMs)
+        const invoice = await repo.createByNodeAndPersist(amountSat, description, node, {
+            isHodlInvoice: true,
+            expiresInMs: expiresInMs
+        })
         return invoice
     }
 
@@ -28,8 +30,8 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      */
     async cancelHodlInvoice(paymentHash: string): Promise<void> {
 
-        const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
-        const invoice = await repo.findOne({'paymentHash': paymentHash})
+        const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Invoice)
+        const invoice = await repo.findOne({'paymentHash': paymentHash, isHodlInvoice: true})
         if (!invoice) {
             throw new Error('Invoice not found')
         }
@@ -43,8 +45,8 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @returns 
      */
     async settleHodlInvoice(paymentHash: string): Promise<void> {
-        const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
-        const invoice = await repo.findOne({paymentHash: paymentHash})
+        const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Invoice)
+        const invoice = await repo.findOne({paymentHash: paymentHash, isHodlInvoice: true})
         if (!invoice) {
             throw new Error('Invoice not found')
         }
@@ -57,9 +59,9 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @param paymentHash 
      * @returns 
      */
-    async getHodlInvoice(paymentHash: string): Promise<HodlInvoice> {
-        const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
-        const invoice = await repo.findOne({paymentHash: paymentHash})
+    async getHodlInvoice(paymentHash: string): Promise<Bolt11Invoice> {
+        const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Invoice)
+        const invoice = await repo.findOne({paymentHash: paymentHash, isHodlInvoice: true})
         if (!invoice) {
             throw new Error('Invoice not found')
         }

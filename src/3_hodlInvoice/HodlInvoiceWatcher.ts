@@ -1,8 +1,8 @@
 import { BlocktankDatabase, RabbitPublisher } from "blocktank-worker2";
-import { HodlInvoice } from "../2_database/entities/HodlInvoice.entity";
+import { Bolt11Invoice } from "../2_database/entities/Bolt11Invoice.entity";
 import * as ln from 'lightning'
 import { Config } from "../1_config/Config";
-import { interferInvoiceChangedAt, interferInvoiceState } from "../2_database/entities/HodlInvoiceState";
+import { interferInvoiceChangedAt, interferInvoiceState } from "../2_database/entities/Bolt11InvoiceState";
 import { LndNodeList } from "../1_lnd/lndNode/LndNodeList";
 import { LndNode } from "../1_lnd/lndNode/LndNode";
 import { toInvoiceStateChangedEvent } from "./IInvoiceStateChangedEvent";
@@ -39,14 +39,14 @@ export class HodlInvoiceWatcher {
 
     async subscribeToChanges() {
         const em = BlocktankDatabase.createEntityManager()
-        const repo = em.getRepository(HodlInvoice)
+        const repo = em.getRepository(Bolt11Invoice)
         const invoices = await repo.getAllOpen()
         for (const invoice of invoices) {
             await this.listenToInvoice(invoice)
         }
     }
 
-    async listenToInvoice(invoice: HodlInvoice) {
+    async listenToInvoice(invoice: Bolt11Invoice) {
         const doWeListenAlready = this.listenAlready.get(invoice.paymentHash)
         if (doWeListenAlready) {
             return
@@ -61,7 +61,7 @@ export class HodlInvoiceWatcher {
     }
 
     private async onInvoiceEvent(lndInvoice: ln.GetInvoiceResult) {
-        const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
+        const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Invoice)
         const invoice = await repo.findOne({paymentHash: lndInvoice.id})
         const oldState = invoice.state
         const newState = interferInvoiceState(lndInvoice)

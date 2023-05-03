@@ -1,16 +1,16 @@
-import { HodlInvoice } from "../2_database/entities/HodlInvoice.entity"
-import { HodlInvoiceState } from "../2_database/entities/HodlInvoiceState"
+import { Bolt11Invoice } from "../2_database/entities/Bolt11Invoice.entity"
+import { Bolt11InvoiceState } from "../2_database/entities/Bolt11InvoiceState"
 
 export interface IInvoiceStateChangedEvent {
     paymentHash: string,
     state: {
-        old: HodlInvoiceState,
-        new: HodlInvoiceState
+        old: Bolt11InvoiceState,
+        new: Bolt11InvoiceState
     },
     updatedAt: Date
 }
 
-export function toInvoiceStateChangedEvent(invoice: HodlInvoice, oldState: HodlInvoiceState, newState: HodlInvoiceState): IInvoiceStateChangedEvent {
+export function toInvoiceStateChangedEvent(invoice: Bolt11Invoice, oldState: Bolt11InvoiceState, newState: Bolt11InvoiceState): IInvoiceStateChangedEvent {
     return {
         paymentHash: invoice.paymentHash,
         state: {

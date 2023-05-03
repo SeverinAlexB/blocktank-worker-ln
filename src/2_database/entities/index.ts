@@ -1,10 +1,10 @@
-import { HodlInvoice } from "./HodlInvoice.entity";
+import { Bolt11Invoice } from "./Bolt11Invoice.entity";
 import { OpenChannelOrder } from "./OpenChannelOrder.entity";
 
 
 // Define all entities here
 const entities = [
-    HodlInvoice,
+    Bolt11Invoice,
     OpenChannelOrder
 ]
 

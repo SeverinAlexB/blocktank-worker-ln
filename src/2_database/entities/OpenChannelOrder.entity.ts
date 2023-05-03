@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property, SerializedPrimaryKey, Enum, EntityRepositoryType } from "@mikro-orm/core";
 import { ObjectId } from "@mikro-orm/mongodb";
-import { HodlInvoiceRepository } from "../repositories/HodlInvoiceRepository";
+import { Bolt11InvoiceRepository } from "../repositories/Bolt11InvoiceRepository";
 import * as crypto from 'crypto';
 import {OpenChannelOrderState} from './OpenChannelOrderState'
 import { OpenChannelOrderRepository } from "../repositories/OpenChannelOrderRepository";

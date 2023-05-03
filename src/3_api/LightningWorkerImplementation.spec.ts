@@ -5,8 +5,8 @@ import {LightningWorkerImplementation} from './LightningWorkerImplementation'
 import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager'
 import { BlocktankDatabase } from 'blocktank-worker2'
 import {sleep} from 'blocktank-worker2/dist/utils';
-import { HodlInvoice } from '../2_database/entities/HodlInvoice.entity'
-import { HodlInvoiceState } from '../2_database/entities/HodlInvoiceState'
+import { Bolt11Invoice } from '../2_database/entities/Bolt11Invoice.entity'
+import { Bolt11InvoiceState } from '../2_database/entities/Bolt11InvoiceState'
 import {HodlInvoiceWatcher} from '../3_hodlInvoice/HodlInvoiceWatcher'
 
 const config: ILndNodeConfig = {
@@ -60,9 +60,9 @@ describe('WorkerImplementation', () => {
             await worker.cancelHodlInvoice(invoice.paymentHash)
 
             await sleep(500) // Wait for the watcher to pick up the event
-            const repo = BlocktankDatabase.createEntityManager().getRepository(HodlInvoice)
+            const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Invoice)
             const invoice2 = await repo.findOne({ paymentHash: invoice.paymentHash})
-            expect(invoice2?.state).toEqual(HodlInvoiceState.CANCELED)
+            expect(invoice2?.state).toEqual(Bolt11InvoiceState.CANCELED)
         } finally {
             await watcher.stop()
         }

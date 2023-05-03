@@ -1,12 +1,12 @@
 import * as ln from 'lightning'
 
-export enum HodlInvoiceState {
+export enum Bolt11InvoiceState {
     /**
      * Expect payment
      */
     PENDING = 'pending',
     /**
-     * Payment received but not confirmed/rejected yet
+     * Payment received but not confirmed/rejected yet. Only possible with HODL invoices.
      */
     HOLDING = 'holding',
     /**
@@ -20,15 +20,15 @@ export enum HodlInvoiceState {
 }
 
 
-export function interferInvoiceState(invoice: ln.GetInvoiceResult): HodlInvoiceState {
+export function interferInvoiceState(invoice: ln.GetInvoiceResult): Bolt11InvoiceState {
     if (invoice.is_canceled) {
-        return HodlInvoiceState.CANCELED
+        return Bolt11InvoiceState.CANCELED
     } else if (invoice.is_confirmed) {
-        return HodlInvoiceState.PAID
+        return Bolt11InvoiceState.PAID
     } else if (invoice.is_held) {
-        return HodlInvoiceState.HOLDING
+        return Bolt11InvoiceState.HOLDING
     } else if (new Date(invoice.expires_at).getTime() > Date.now()) {
-        return HodlInvoiceState.PENDING
+        return Bolt11InvoiceState.PENDING
     } else {
         throw new Error(`Unknown state`, {
             cause: invoice
@@ -38,15 +38,15 @@ export function interferInvoiceState(invoice: ln.GetInvoiceResult): HodlInvoiceS
 
 export function interferInvoiceChangedAt(invoice: ln.GetInvoiceResult): Date {
     const state = interferInvoiceState(invoice)
-    if (state === HodlInvoiceState.PENDING) {
+    if (state === Bolt11InvoiceState.PENDING) {
         return new Date(invoice.created_at)
-    } else if (state === HodlInvoiceState.HOLDING) {
+    } else if (state === Bolt11InvoiceState.HOLDING) {
         // When last payment arrived
         const arrivals = invoice.payments.map(p =>  new Date(p.created_at).getTime())
         return new Date(Math.max(...arrivals))
-    } else if (state === HodlInvoiceState.PAID) {
+    } else if (state === Bolt11InvoiceState.PAID) {
         return new Date(invoice.confirmed_at)
-    } else if (state === HodlInvoiceState.CANCELED) {
+    } else if (state === Bolt11InvoiceState.CANCELED) {
         // Can't interfer this from the invoice so just take the current datetime.
         return new Date()
     } else {
