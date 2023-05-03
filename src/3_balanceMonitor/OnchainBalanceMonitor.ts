@@ -59,7 +59,7 @@ export class OnchainBalanceMonitor {
 
     private async sendToSlack(level: string, tag: string, message: string) {
         try {
-            await this.slackService.sendMessage('blocktankInstant', level, tag, message, undefined)
+            await this.slackService.sendMessage('blocktankLn', level, tag, message, undefined)
         } catch (e) {
             console.error('Failed to send slack message.', e)
         }
