@@ -3,7 +3,7 @@ import dbConfig from './mikro-orm.config'
 import { HodlInvoiceWatcher } from "./3_hodlInvoice/HodlInvoiceWatcher"
 import { LndNodeManager } from "./1_lnd/lndNode/LndNodeManager"
 import { OpenChannelWatcher } from "./3_channelOpens/OpenChannelWatcher"
-import { OnchainBalanceMonitor } from "./1_lnd/lndNode/OnchainBalanceMonitor"
+import { OnchainBalanceMonitor } from "./3_balanceMonitor/OnchainBalanceMonitor"
 import { Config } from "./1_config/Config"
 
 

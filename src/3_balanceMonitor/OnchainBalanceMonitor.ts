@@ -1,6 +1,6 @@
 import { GrenacheClient } from "blocktank-worker2";
-import { LndNode } from "./LndNode";
-import { Config } from "../../1_config/Config";
+import { LndNode } from "../1_lnd/lndNode/LndNode";
+import { Config } from "../1_config/Config";
 
 
 const config = Config.get()
