@@ -57,18 +57,27 @@ export class OnchainBalanceMonitor {
         return 'BTC' + btc.toFixed(8)
     }
 
+    private async sendToSlack(level: string, tag: string, message: string) {
+        try {
+            await this.slackService.sendMessage('blocktankInstant', level, tag, message, undefined)
+        } catch (e) {
+            console.error('Failed to send slack message.', e)
+        }
+    }
+
     private async onBalanceStateChanged(node: LndNode, balanceSat: number) {
         const formatedBtc = this.formatSats(balanceSat)
         if (this.alertThresholdSat > balanceSat) {
             const message = `Onchain balance of node ${node.alias} ${node.publicKey} are below threshold of ${this.formatSats(this.alertThresholdSat)}:  ${formatedBtc}.`
             console.log(message)
-            await this.slackService.sendMessage('blocktankInstant', 'warning', 'Onchain funds are low.', message, undefined)
-            return
+            await this.sendToSlack('warning', 'Onchain funds are low.', message)
+        } else {
+            if (!this.isFirstRun){ // Dont send recovered on watcher startup.
+                const message = `Onchain balance of node ${node.alias} ${node.publicKey} recovered to ${formatedBtc}.`
+                console.log(message)
+                await this.sendToSlack('success', 'Onchain recovered.', message)
+            }
         }
-        if (!this.isFirstRun){ // Dont send recovered on watcher startup.
-            const message = `Onchain balance of node ${node.alias} ${node.publicKey} recovered to ${formatedBtc}.`
-            console.log(message)
-            await this.slackService.sendMessage('blocktankInstant', 'success', 'Onchain recovered', message, undefined)
-        }
+
     }
 }
