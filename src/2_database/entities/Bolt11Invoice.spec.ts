@@ -44,7 +44,7 @@ describe('Bolt11Invoice', () => {
         const node = await nodeFactory()
         const em = BlocktankDatabase.createEntityManager()
         const repo = em.getRepository(Bolt11Invoice)
-        const invoice = await repo.createByNodeAndPersist(1000, 'test', node, {isHodlInvoice: false})
+        const invoice = await repo.createByNodeAndPersist(1000, 'test', node, {isHodlInvoice: false, expiresInMs: 5*1000})
         await em.flush()
         
         expect(invoice.createdAt).toBeDefined()

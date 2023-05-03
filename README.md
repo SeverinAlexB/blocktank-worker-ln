@@ -18,13 +18,13 @@ Configuration is done with the `config.json` file in the root of this project. S
 
 ## APIs
 
-### HODL invoices
+### Bolt11 invoices
 
-* `createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): HodlInvoice`
+* `createHodlInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): Bolt11Invoice`
     * amountSat: amount in satoshis.
     * description: description of the invoice.
     * expiresInMs: time in milliseconds until the invoice expires. Default 1 hour.
-    * Returns HodlInvoice object.
+    * Returns Bolt11Invoice object.
 
 * `cancelHodlInvoice(paymentHash: string): void`
     * paymentHash: payment hash of the invoice to cancel.
@@ -32,21 +32,28 @@ Configuration is done with the `config.json` file in the root of this project. S
 * `settleHodlInvoice(paymentHash: string): void`
     * paymentHash: payment hash of the invoice to settle.
 
-* `getHodlInvoice(paymentHash: string): HodlInvoice`
+* `getInvoice(paymentHash: string): Bolt11Invoice`
     * paymentHash: payment hash of the invoice to get.
-    * Returns HodlInvoice object.
+    * Returns Bolt11Invoice object.
+
+* `createInvoice(amountSat: number, description: string, expiresInMs: number = 60*60*1000): Bolt11Invoice`
+    * amountSat: amount in satoshis.
+    * description: description of the invoice.
+    * expiresInMs: time in milliseconds until the invoice expires. Default 1 hour.
+    * Returns Bolt11Invoice object.
+
 
 > **Note:** A HODL invoice in the state `holding` is automatically canceled 10 blocks before it runs into the payment CLTV timeout to prevent channel force closures. With a default of 40 blocks, the hold invoice needs to be settled within 30 blocks (about 5 hours) after it has been paid.
 
 #### Events
 
 The event `svc:ln2`.`invoiceChanged` will notify when an invoice state changes. The event data is of type `IInvoiceStateChangedEvent`.
-The most important event is `HodlInvoiceState.HOLDING`. It indicates that the invoice has been paid but the payment has not been settled yet. You need to either call `settleHodlInvoice` (to settle the invoice) or `cancelHodlInvoice` (to refund the payment).
+The most important event is `Bolt11InvoiceState.HOLDING`. It indicates that the invoice has been paid but the payment has not been settled yet. You need to either call `settleHodlInvoice` (to settle the invoice) or `cancelHodlInvoice` (to refund the payment).
 
 ```typescript
-export enum HodlInvoiceState {
+export enum Bolt11InvoiceState {
     PENDING = 'pending', // Expect payment
-    HOLDING = 'holding', // Payment received but not confirmed/rejected yet
+    HOLDING = 'holding', // Payment received but not confirmed/rejected yet. Only hodl invoices can have this state.
     PAID = 'paid', // Payment confirmed
     CANCELED = 'canceled', // Payment rejected or invoice expired.
 }
@@ -99,9 +106,6 @@ export interface IChannelUpdateEvent {
     updatedAt: Date
 }
 ```
-
-### Onchain balance monitoring
-
 
 
 ## Testing

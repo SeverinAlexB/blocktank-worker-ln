@@ -45,7 +45,7 @@ describe('WorkerImplementation', () => {
     test('Get invoice', async () => {
         const worker = new LightningWorkerImplementation()
         const {paymentHash} = await worker.createHodlInvoice(1000, 'test', 45*1000)
-        const invoice = await worker.getHodlInvoice(paymentHash)
+        const invoice = await worker.getInvoice(paymentHash)
         expect(invoice.parsedRequest.description).toEqual('test')
         expect(invoice.tokens).toEqual(1000)
     });
