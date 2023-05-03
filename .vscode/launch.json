@@ -14,5 +14,15 @@
         "outFiles": ["${workspaceFolder}/dist/**/*.js"],
         "outputCapture": "std",
       },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "worker",
+        "skipFiles": ["<node_internals>/**"],
+        "program": "${workspaceFolder}/src/worker.ts",
+        "preLaunchTask": "npm: build",
+        "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+        "outputCapture": "std",
+      },
     ]
   }

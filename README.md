@@ -7,7 +7,7 @@ Microservice worker to interact with Lightning Network Node
 * `npm install` Install dependencies.
 * `npm run build` Build the project.
 * `npm run start-worker` Start the worker to listen on the API.
-* `npm run watch-lnd` Listens to LND events.
+* `npm run watch-lnd` Listens to LND events. *Dont run multiple instances of this command. MongoDb transactions dont work without a replicaset.*
 
 ## Configuration
 
@@ -35,6 +35,8 @@ Configuration is done with the `config.json` file in the root of this project. S
 * `getHodlInvoice(paymentHash: string): HodlInvoice`
     * paymentHash: payment hash of the invoice to get.
     * Returns HodlInvoice object.
+
+> **Note:** A HODL invoice in the state `holding` is automatically canceled 10 blocks before it runs into the payment CLTV timeout to prevent channel force closures. With a default of 40 blocks, the hold invoice needs to be settled within 30 blocks (about 5 hours) after it has been paid.
 
 #### Events
 
@@ -99,6 +101,8 @@ export interface IChannelUpdateEvent {
 ```
 
 ### Onchain balance monitoring
+
+
 
 ## Testing
 

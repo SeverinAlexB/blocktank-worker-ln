@@ -5,4 +5,5 @@ export interface IConfig {
     workerPort: number,
     grapeUrl: string,
     nodes: ILndNodeConfig[],
+    alertOnchainBalanceThresholdSat: number
 }

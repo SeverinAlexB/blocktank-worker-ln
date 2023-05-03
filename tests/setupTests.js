@@ -15,7 +15,7 @@ global.beforeAll(async () => {
 });
 
 global.afterEach(async () => {
-    // await BlocktankDatabase.cleanDatabase()
+    await BlocktankDatabase.cleanDatabase()
 });
 
 global.afterAll(async () => {

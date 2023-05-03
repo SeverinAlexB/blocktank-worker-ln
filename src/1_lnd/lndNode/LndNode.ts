@@ -1,7 +1,6 @@
 import { ILndConnectionInfo } from "./ILndConnectionInfo";
 import * as ln from 'lightning'
 
-type GetChannelResult = ln.GetChannelsResult['channels'][0]
 
 export class LndNode {
     private _rpc: ln.AuthenticatedLnd;
@@ -31,6 +30,9 @@ export class LndNode {
         return (this.latestGetInfo as any).uris
     }
 
+    /**
+     * Sets up the connection and pulls basic info from the node.
+     */
     async connect() {
         const con = ln.authenticatedLndGrpc({
             cert: this.options.tlsCertificate,
@@ -40,6 +42,18 @@ export class LndNode {
         this._rpc = con.lnd;
         await this.getInfo()
     }
+
+    // async isReady(minOnchainBalanceSat: number = 1 * 100*1000*1000): Promise<boolean> {
+    //     const info = await this.getInfo()
+    //     if (!info.is_synced_to_chain) {
+    //         return false
+    //     }
+    //     const balanceSat = await this.getOnchainBalance()
+    //     if (balanceSat < minOnchainBalanceSat) {
+    //         return false
+    //     }
+    //     return true
+    // }
 
     async getInfo(): Promise<ln.GetWalletInfoResult> {
         const info = await ln.getWalletInfo({ lnd: this.rpc })
@@ -175,6 +189,15 @@ export class LndNode {
         emitter.on('channel_opened', async (data) => {
             await callback('channel_opened', data)
         })
+    }
+
+    /**
+     * Returns onchain balance in satoshi.
+     * @returns 
+     */
+    async getOnchainBalance(): Promise<number> {
+        const balance = await ln.getChainBalance({ lnd: this.rpc })
+        return balance.chain_balance
     }
 
 }
