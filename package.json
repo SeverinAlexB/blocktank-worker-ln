@@ -7,7 +7,7 @@
     "@node-lightning/invoice": "^0.28.0",
     "async": "^3.2.3",
     "blocktank-worker2": "github:synonymdev/blocktank-worker2#master",
-    "ln-service": "^56.0.0",
+    "lightning": "^9.3.0",
     "lodash": "^4.17.21"
   },
   "scripts": {

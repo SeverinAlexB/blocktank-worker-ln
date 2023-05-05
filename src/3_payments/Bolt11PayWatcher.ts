@@ -49,7 +49,7 @@ export class Bolt11PayWatcher {
         for (const payment of payments) {
             const state = await Bolt11PayService.getState(payment.paymentHash)
             if (state.state !== payment.state) {
-                await this.onPaymentChanged(payment.id, state.state, state.error, state.secret)
+                await this.onPaymentChanged(payment.paymentHash, state.state, state.error, state.secret)
             }
         }
     }
@@ -60,11 +60,11 @@ export class Bolt11PayWatcher {
     async listenToChannelChanges() {
         for (const node of this.nodes.nodes) {
             node.subscribetoPayments(async (paymentHash, newState, error?, secret?) => {
-                console.log('Pay event', paymentHash, newState, error)
+                // console.log('Pay event', paymentHash, newState, error)
                 const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Payment)
                 const payment = await repo.findOne({paymentHash: paymentHash})
                 if (!payment) {
-                    console.log('No payment is associated with this event.')
+                    console.log(`No payment with hash ${paymentHash} is associated with a invoice in our database.`)
                     return
                 }
                 if (payment.state !== newState) {
@@ -85,7 +85,7 @@ export class Bolt11PayWatcher {
         if (!stateChanged) {
             return
         }
-        console.log('new state', payment.state, 'to', newState, error, secret)
+        console.log(`${paymentHash} new state: ${payment.state} to ${newState}. Error: ${error}, secret: ${secret}`)
         payment.state = newState
         payment.error = error
         payment.secret = secret

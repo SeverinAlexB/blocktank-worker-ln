@@ -1,5 +1,4 @@
 import { EntityRepository } from '@mikro-orm/mongodb'; // or any other driver package
-import { Bolt11Invoice } from '../entities/Bolt11Invoice.entity';
 import { LightningInvoice } from '../../1_lnd/LightningInvoice';
 import { LndNode } from '../../1_lnd/lndNode/LndNode';
 import { Bolt11Payment } from '../entities/Bolt11Payment.entity';
@@ -12,7 +11,7 @@ export class Bolt11PaymentRepository extends EntityRepository<Bolt11Payment> {
     async createByNodeAndPersist(request: string, node: LndNode) {
         const check = isValidLightningInvoice(request)
         if (!check.isValid) {
-            throw new Error(`Invalid lightning invoice: ${check.error}`)
+            throw new Error(`Invalid lightning invoice: ${JSON.stringify(check.error)}`)
         }
         const lnInvoice = new LightningInvoice(request)
         const pay = new Bolt11Payment()

@@ -1,8 +1,12 @@
+import { BlocktankDatabase } from "blocktank-worker2"
 import { ILndNodeConfig } from "../1_config/ILndNodeConfig"
+import { LightningInvoice } from "../1_lnd/LightningInvoice"
 import { readLndConnectionInfo2 } from "../1_lnd/lndNode/ILndConnectionInfo"
 import { LndNode } from "../1_lnd/lndNode/LndNode"
 import { LndNodeManager } from "../1_lnd/lndNode/LndNodeManager"
 import { Bolt11PayService } from "./Bolt11PayService"
+import { Bolt11Payment } from "../2_database/entities/Bolt11Payment.entity"
+import FakeInvoice from "../1_lnd/FakeInvoice"
 
 const config: ILndNodeConfig = {
     grpcSocket: '127.0.0.1:10001',
@@ -30,8 +34,26 @@ describe('Bolt11PayService', () => {
 
     test('Pay', async () => {
         const node = LndNodeManager.nodes[0]
-        const invoice = 'lnbcrt10u1pj9ffl2pp55hx0uh5x2m9cc37ue7jnu7aw2a7s5xsdthcxj09mhg5zk3hre5hsdqqcqzpgxqyz5vqsp58up03leum5q5pfw65klac9dk0twajjst8jlnmu4pcst6q2s4k8fs9qyyssqr3yhdanw95897xtefzk7l0a83nemyqjr8umgdpmd42agh6frvp3kke2d0gg4f4ydamj8xy4z7npt05tctxjd4shnpfmz9k362gtmkpspmukamy'
-        await Bolt11PayService.pay(invoice, node, 10000)
+        const invoice = FakeInvoice.create({
+            amountSat: 1000,
+            description: 'test',
+        })
+        try {
+            await Bolt11PayService.pay(invoice, node, 10000)
+            console.log('done')
+        } catch (e) {
+            console.log('error', e)
+        }
+
+    });
+
+    test('Create pay', async () => {
+        const node = LndNodeManager.nodes[0]
+        const invoice = 'lnbcrt10u1pj9fjffpp52fsreq4e05u9pdprdldm4vnml2ffymwfk7grv8tmulfnhh2sftjqdqqcqzpgxqyz5vqsp542cvxf56gxskdz8xpwcytvz0k9238fkxyjgyqgpa39x4ellveunq9qyyssqlcr5f47u8q35cta8ktjuhdkfs5t6kkytmfhgx2qftje5ukuudv34d35228ukdxrjmxfdpyfcfuf46ghy6r8cezyadnkrwcxpc559n4cq2fkat2'
+        
+        const repo = BlocktankDatabase.orm.em.fork().getRepository(Bolt11Payment)
+        const pay = await repo.createByNodeAndPersist(invoice, node)
+        console.log('pay', pay)
     });
 
 });

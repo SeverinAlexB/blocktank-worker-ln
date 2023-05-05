@@ -51,7 +51,7 @@ export default class FakeInvoice {
         const args2: CreateInvoiceArgs = Object.assign({},defaults, args)
         const decoded = invoiceLn.decode(base)
         decoded.timestamp = args2.createdAt.getTime()/1000
-
+        decoded.paymentHash = randomBytes(32)
         if (!args2.amountSat) {
             decoded.valueSat = ''
         }
