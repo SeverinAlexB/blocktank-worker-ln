@@ -22,6 +22,9 @@ export class Bolt11Payment {
     @Property()
     paymentHash: string
 
+    @Property({nullable: true})
+    secret?: string
+
     @Property()
     request: string;
 

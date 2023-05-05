@@ -1,6 +1,8 @@
+import { Bolt11PaymentState } from "../../2_database/entities/Bolt11PaymentState";
 import { LightningInvoice } from "../LightningInvoice";
 import { ILndConnectionInfo } from "./ILndConnectionInfo";
 import * as ln from 'lightning'
+import { LndPaymentFailureEnum, interferLndPaymentFailure } from "./LndPaymentFailureEnum";
 
 interface IPayOptions {
     maxFeePpm: number,
@@ -208,4 +210,21 @@ export class LndNode {
         return payed
     }
 
+    async getPayment(paymentHash: string): Promise<ln.GetPaymentResult> {
+        return await ln.getPayment({ lnd: this.rpc, id: paymentHash })
+    }
+
+    async subscribetoPayments(callback: (paymentHash: string, newState: Bolt11PaymentState, error?: LndPaymentFailureEnum, secret?: string) => any) {
+        const emitter = ln.subscribeToPayments({ lnd: this.rpc })
+        emitter.on('confirmed', async (event) => {
+            await callback(event.id, Bolt11PaymentState.PAID, event.secret)
+        })
+        emitter.on('failed', async (event) => {
+            const error = interferLndPaymentFailure(event);
+            await callback(event.id, Bolt11PaymentState.FAILED, error)
+        })
+        emitter.on('paying', async (event) => {
+            await callback(event.id, Bolt11PaymentState.INFLIGHT)
+        })
+    }
 }
