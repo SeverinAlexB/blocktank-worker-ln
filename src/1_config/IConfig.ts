@@ -1,3 +1,4 @@
+import BitcoinNetworkEnum from "../1_lnd/BitcoinNetworkEnum";
 import { ILndNodeConfig } from "./ILndNodeConfig";
 
 export interface IConfig {
@@ -5,5 +6,6 @@ export interface IConfig {
     workerPort: number,
     grapeUrl: string,
     nodes: ILndNodeConfig[],
-    alertOnchainBalanceThresholdSat: number
+    alertOnchainBalanceThresholdSat: number,
+    bitcoinNetwork: BitcoinNetworkEnum
 }

@@ -4,10 +4,10 @@ import { Bolt11InvoiceWatcher } from "./3_hodlInvoice/Bolt11InvoiceWatcher"
 import { LndNodeManager } from "./1_lnd/lndNode/LndNodeManager"
 import { OpenChannelWatcher } from "./3_channelOpens/OpenChannelWatcher"
 import { OnchainBalanceMonitor } from "./3_balanceMonitor/OnchainBalanceMonitor"
-import { Config } from "./1_config/Config"
+import { AppConfig } from "./1_config/Config"
 
 
-const config = Config.get()
+const config = AppConfig.get()
 /**
  * Worker that watches HodlInvoices on LND, updates our database and publishes events to rabbitMq.
  */

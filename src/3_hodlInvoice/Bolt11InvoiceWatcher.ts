@@ -1,13 +1,13 @@
 import { BlocktankDatabase, RabbitPublisher } from "blocktank-worker2";
 import { Bolt11Invoice } from "../2_database/entities/Bolt11Invoice.entity";
 import * as ln from 'lightning'
-import { Config } from "../1_config/Config";
+import { AppConfig } from "../1_config/Config";
 import { interferInvoiceChangedAt, interferInvoiceState } from "../2_database/entities/Bolt11InvoiceState";
 import { LndNodeList } from "../1_lnd/lndNode/LndNodeList";
 import { LndNode } from "../1_lnd/lndNode/LndNode";
 import { toInvoiceStateChangedEvent } from "./IInvoiceStateChangedEvent";
 
-const config = Config.get()
+const config = AppConfig.get()
 
 
 /**

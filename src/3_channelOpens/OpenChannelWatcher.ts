@@ -1,5 +1,5 @@
 import { BlocktankDatabase, RabbitPublisher } from "blocktank-worker2";
-import { Config } from "../1_config/Config";
+import { AppConfig } from "../1_config/Config";
 import { LndNodeList } from "../1_lnd/lndNode/LndNodeList";
 import { LndNode } from "../1_lnd/lndNode/LndNode";
 import { OpenChannelOrder } from "../2_database/entities/OpenChannelOrder.entity";
@@ -8,7 +8,7 @@ import { ChannelOpenService } from "./openService/ChannelOpenService";
 import { toChannelUpdateEvent } from "./IChannelUpdateEvent";
 
 
-const config = Config.get()
+const config = AppConfig.get()
 
 
 /**

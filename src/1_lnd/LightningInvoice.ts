@@ -16,6 +16,10 @@ export class LightningInvoice {
         return Number.parseInt(this.decoded.valueSat)
     }
 
+    get milliSatoshi(): string {
+        return this.decoded.valueMsat
+    }
+
     get id(): string {
         return this.paymentHash
     }

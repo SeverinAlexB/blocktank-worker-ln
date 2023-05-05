@@ -1,10 +1,10 @@
 
-import { Config } from "../../1_config/Config";
+import { AppConfig } from "../../1_config/Config";
 import { readLndConnectionInfo2 } from "./ILndConnectionInfo";
 import { LndNode } from "./LndNode";
 
 
-const config = Config.get();
+const config = AppConfig.get();
 
 /**
  * Static class that provides access to all configured nodes. Main entrypoint for other classes to get the nodes from.

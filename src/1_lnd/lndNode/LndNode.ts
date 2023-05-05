@@ -1,5 +1,13 @@
+import { LightningInvoice } from "../LightningInvoice";
 import { ILndConnectionInfo } from "./ILndConnectionInfo";
 import * as ln from 'lightning'
+
+interface IPayOptions {
+    maxFeePpm: number,
+    maxFeeSat: number,
+    maxFeeMsat: BigInt,
+    timeoutMs: number
+}
 
 
 export class LndNode {
@@ -77,24 +85,8 @@ export class LndNode {
         return await ln.createInvoice({ lnd: this.rpc, tokens: amountSat, description: description, expires_at: expiredAt.toISOString() })
     }
 
-    /**
-     * All hold invoices, that are currently holding the payment.
-     * @returns 
-     */
-    async getHoldingHodlInvoices(): Promise<ln.GetInvoiceResult[]> {
-        const invoices: ln.GetInvoiceResult[] = []
-        let paginationToken = undefined
-        while (true) {
-            const page = await ln.getInvoices({ lnd: this.rpc, is_unconfirmed: true, token: paginationToken })
-            const holdInvoices = page.invoices.filter(invoice => invoice.is_held)
-            invoices.push(...holdInvoices as any)
-            if (page.next === undefined) {
-                break
-            }
-            paginationToken = page.next as any
-        }
-        return invoices
-
+    async payInvoice(invoice: string, maxFeeMsat: string, pathfindingTimeoutMs: number): Promise<ln.PayResult> {
+        return await ln.pay({ lnd: this.rpc, request: invoice, max_fee_mtokens: maxFeeMsat, pathfinding_timeout: pathfindingTimeoutMs })
     }
 
     /**
@@ -191,6 +183,29 @@ export class LndNode {
     async getOnchainBalance(): Promise<number> {
         const balance = await ln.getChainBalance({ lnd: this.rpc })
         return balance.chain_balance
+    }
+
+    /**
+     * Pay an invoice.
+     * @param request Bolt11 invoice with amount set.
+     * @param options Timeout and maxFee in different formats. Default: 100,000ms and 10,000ppm (1%).
+     * @returns 
+     */
+    async pay(request: string, options: Partial<IPayOptions> = {}): Promise<ln.PayViaPaymentRequestResult> {
+        const timeoutMs = options.timeoutMs || 1000 * 100;
+        const invoice = new LightningInvoice(request)
+        let maxFeeMsat: BigInt;
+        if (options.maxFeeSat) {
+            maxFeeMsat = BigInt(options.maxFeeSat)*1000n
+        } else if (options.maxFeeMsat) {
+            maxFeeMsat = options.maxFeeMsat
+        } else {
+            const defaultFeePpm = 10000; // 1%
+            const amountMsat = BigInt(invoice.milliSatoshi)
+            maxFeeMsat = amountMsat * BigInt(options.maxFeePpm || defaultFeePpm) / 1000000n
+        }
+        const payed = await ln.payViaPaymentRequest({ lnd: this.rpc, request, pathfinding_timeout: timeoutMs, max_fee_mtokens: maxFeeMsat.toString() })
+        return payed
     }
 
 }

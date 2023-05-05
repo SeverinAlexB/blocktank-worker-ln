@@ -106,4 +106,8 @@ export class LightningWorkerImplementation extends WorkerImplementation {
         return await ChannelOpenService.getChannelOrder(id)
     }
 
+    async payInvoice(request: string) {
+        
+    }
+
 }

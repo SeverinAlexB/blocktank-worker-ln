@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import { IConfig } from './IConfig'
 import { defaultConfig } from './defaultConfig';
 
-export class Config {
+export class AppConfig {
     private static _config: IConfig;
     static get(): IConfig {
         if (!this._config) {

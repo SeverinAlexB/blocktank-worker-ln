@@ -9,5 +9,6 @@
       "grpcSocket": "127.0.0.1:10001"
     }
   ],
-  "alertOnchainBalanceThresholdSat": 0
+  "alertOnchainBalanceThresholdSat": 0,
+  "bitcoinNetwork": "regtest"
 }
