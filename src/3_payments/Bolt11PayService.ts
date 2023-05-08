@@ -12,24 +12,33 @@ export class Bolt11PayService {
         const pay = await repo.createByNodeAndPersist(request, node)
 
         try {
-            const result = await Promise.race([ // Fire and forget; We will get notified of the result via subscriptions.
+            await Promise.race([ // Fire and forget; We will get notified of the result via subscriptions.
             sleep(300),
             node.pay(pay.request, {maxFeePpm: maxFeePpm})
         ])
         } catch (e) {
-            // Payment failed very quickly. Why?
-           const reason = await this.analyseFailedPayment(pay, node)
+            /**
+             * Payment failed very quickly. Why? 
+             * There are 2 types of errors here:
+             * Payment succeded/failed -> No problem, we will be notified via our subscriptions.
+             * Payment didn't get accepted by LND -> Problem, subscriptions don't work. Need to log issue. We should prevalidate this issue
+             * as much as possible so we don't run into it.
+             */
+
+           if (!(await this.didPaymentRegisterOnLnd(pay, node))) {
+                console.error(`Could not find payment with hash ${pay.paymentHash} in db after calling node.pay. ${request}. ${e}`)
+           }
         }
 
         return pay;
     }
 
-    private static async analyseFailedPayment(pay: Bolt11Payment, node: LndNode) {
+    private static async didPaymentRegisterOnLnd(pay: Bolt11Payment, node: LndNode) {
         try {
-            const result = await node.getPayment(pay.paymentHash)
-            return 1
+            await node.getPayment(pay.paymentHash)
+            return true
         } catch (e) {
-            console.log('not found?')
+            return false
         }
     }
 

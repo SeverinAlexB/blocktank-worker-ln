@@ -190,11 +190,11 @@ export class LndNode {
     /**
      * Pay an invoice.
      * @param request Bolt11 invoice with amount set.
-     * @param options Timeout and maxFee in different formats. Default: 100,000ms and 10,000ppm (1%).
+     * @param options Timeout and maxFee in different formats. Default: 60,000ms and 10,000ppm (1%).
      * @returns 
      */
     async pay(request: string, options: Partial<IPayOptions> = {}): Promise<ln.PayViaPaymentRequestResult> {
-        const timeoutMs = options.timeoutMs || 1000 * 100;
+        const timeoutMs = options.timeoutMs || 60*1000;
         const invoice = new LightningInvoice(request)
         let maxFeeMsat: BigInt;
         if (options.maxFeeSat) {
@@ -217,7 +217,7 @@ export class LndNode {
     async subscribetoPayments(callback: (paymentHash: string, newState: Bolt11PaymentState, error?: LndPaymentFailureEnum, secret?: string) => any) {
         const emitter = ln.subscribeToPayments({ lnd: this.rpc })
         emitter.on('confirmed', async (event) => {
-            await callback(event.id, Bolt11PaymentState.PAID, event.secret)
+            await callback(event.id, Bolt11PaymentState.PAID, undefined, event.secret)
         })
         emitter.on('failed', async (event) => {
             const error = interferLndPaymentFailure(event);

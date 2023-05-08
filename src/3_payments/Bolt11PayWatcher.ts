@@ -27,7 +27,7 @@ export class Bolt11PayWatcher {
 
     async watch(nodes: LndNode[]) {
         await this._init(nodes)
-        await this.listenToChannelChanges()
+        await this.listenToPaymentChanges()
         await this.pullAllChanges()
     }
 
@@ -42,7 +42,7 @@ export class Bolt11PayWatcher {
     }
 
     /**
-     * Sync all order in our db with the node in case we missed an update.
+     * Sync all payments in our db with the node in case we missed an update.
      */
     async pullAllChanges() {
         const payments = await this.getAllInflightPayments()
@@ -55,9 +55,9 @@ export class Bolt11PayWatcher {
     }
 
     /**
-     * Listen to any channel changes on the node.
+     * Listen to any payment changes on the node.
      */
-    async listenToChannelChanges() {
+    async listenToPaymentChanges() {
         for (const node of this.nodes.nodes) {
             node.subscribetoPayments(async (paymentHash, newState, error?, secret?) => {
                 // console.log('Pay event', paymentHash, newState, error)
