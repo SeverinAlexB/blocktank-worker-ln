@@ -79,7 +79,7 @@ Open a channel with a peer. This includes establishing the peer connection.
     * pushBalanceSat: amount of satoshis to push to the peer. Default 0.
     * Returns OpenChannelOrder object.
     * Throws `ChannelOpenError` if the channel could not be opened.
-        * `error.code` show the reason.
+        * `error.code` shows the reason.
 
 * `getOrderedChannel(id: string): OpenChannelOrder`
     * id: id of the order to get.
@@ -107,6 +107,32 @@ export interface IChannelUpdateEvent {
 }
 ```
 
+### Payments
+
+* `makePayment(request: string, maxFeePpm: number = 10*1000): Bolt11Payment`
+    * request: bolt11 invoice to pay.
+    * maxFeePpm: maximum fee in parts per million. Default 10*1000 = 1%.
+    * Returns Bolt11Payment object.
+
+* `getPayment(paymentHash: string): Bolt11Payment`
+    * paymentHash: payment hash of the payment to get.
+    * Returns Bolt11Payment object.
+
+
+#### Events
+
+The event `svc:ln2`.`paymentChanged` will notify when a payment state changes. The event data is of type `Bolt11PayChangedEvent`.
+
+```typescript
+interface Bolt11PayChangedEvent {
+    paymentHash: string,
+    state: {
+        old: Bolt11PaymentState,
+        new: Bolt11PaymentState
+    },
+    updatedAt: Date
+}
+```
 
 ## Testing
 

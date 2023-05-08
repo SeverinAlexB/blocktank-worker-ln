@@ -42,6 +42,13 @@ export class Bolt11PayService {
         }
     }
 
+    static async getPayment(paymentHash: string): Promise<Bolt11Payment> {
+        const repo = BlocktankDatabase.createEntityManager().getRepository(Bolt11Payment)
+        return await repo.findOne({
+            paymentHash: paymentHash
+        })
+    }
+
     static async getState(paymentHash: string) {
         const repo = BlocktankDatabase.orm.em.fork().getRepository(Bolt11Payment)
         const pay = await repo.findOneOrFail({paymentHash: paymentHash})
@@ -65,9 +72,5 @@ export class Bolt11PayService {
             throw new Error('Undefined payment state', { cause: result})
         }
         
-    }
-
-    static interpretFailure(failure: any) {
-
     }
 }

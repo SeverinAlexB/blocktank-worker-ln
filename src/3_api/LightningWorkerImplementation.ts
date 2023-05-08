@@ -3,6 +3,8 @@ import { Bolt11Invoice } from '../2_database/entities/Bolt11Invoice.entity';
 import { LndNodeManager } from '../1_lnd/lndNode/LndNodeManager';
 import { OpenChannelOrder } from '../2_database/entities/OpenChannelOrder.entity';
 import { ChannelOpenService } from '../3_channelOpens/openService/ChannelOpenService';
+import { Bolt11Payment } from '../2_database/entities/Bolt11Payment.entity';
+import { Bolt11PayService } from '../3_payments/Bolt11PayService';
 
 export class LightningWorkerImplementation extends WorkerImplementation {
 
@@ -103,11 +105,35 @@ export class LightningWorkerImplementation extends WorkerImplementation {
      * @returns 
      */
     async getOrderedChannel(id: string): Promise<OpenChannelOrder> {
-        return await ChannelOpenService.getChannelOrder(id)
+        const order = await ChannelOpenService.getChannelOrder(id)
+        if (!order) {
+            throw new Error('Invoice not found')
+        }
+        return order
     }
 
-    async payInvoice(request: string) {
-        
+    /**
+     * Pay a lightning invoice.
+     * @param request Lightning Bolt11 invoice.
+     * @param maxFeePpm Max fee in part per million. Default: 10,000 = 1%.
+     * @returns 
+     */
+    async makePayment(request: string, maxFeePpm: number = 10*1000): Promise<Bolt11Payment> {
+        const node = LndNodeManager.random
+        return await Bolt11PayService.pay(request, node, maxFeePpm)
+    }
+
+    /**
+     * Get a payment
+     * @param paymentHash payment hash of the invoice.
+     * @returns 
+     */
+    async getPayment(paymentHash: string): Promise<Bolt11Payment> {
+        const payment = await Bolt11PayService.getPayment(paymentHash)
+        if (!payment) {
+            throw new Error('Invoice not found')
+        }
+        return payment
     }
 
 }
