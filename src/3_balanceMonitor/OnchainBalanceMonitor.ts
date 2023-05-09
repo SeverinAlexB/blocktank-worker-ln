@@ -38,7 +38,7 @@ export class OnchainBalanceMonitor {
     async watchOnce() {
         for (const node of this.nodes) {
             try {
-                const balanceSat = await node.getOnchainBalance()
+                const balanceSat = await node.getOnchainBalanceSat()
                 const isBelow = balanceSat < this.alertThresholdSat
                 const stateChanged = this.isNodeBelow.get(node.publicKey) !== isBelow
                 this.isNodeBelow.set(node.publicKey, isBelow)

@@ -3,6 +3,7 @@ import { LightningInvoice } from "../LightningInvoice";
 import { ILndConnectionInfo } from "./ILndConnectionInfo";
 import * as ln from 'lightning'
 import { LndPaymentFailureEnum, interferLndPaymentFailure } from "./LndPaymentFailureEnum";
+import { sleep } from "blocktank-worker2/dist/utils";
 
 interface IPayOptions {
     maxFeePpm: number,
@@ -182,9 +183,27 @@ export class LndNode {
      * Returns onchain balance in satoshi.
      * @returns 
      */
-    async getOnchainBalance(): Promise<number> {
+    async getOnchainBalanceSat(): Promise<number> {
         const balance = await ln.getChainBalance({ lnd: this.rpc })
         return balance.chain_balance
+    }
+
+    /**
+     * Returns onchain balance in satoshi. If the call takes longer than timeoutMs, returns 0.
+     * This is used to check if the node is online.
+     * @param timeoutMs 
+     * @returns 
+     */
+    async getNodesBalanceWithTimeout(timeoutMs: number = 200): Promise<number> {
+        const result = await Promise.race([
+            this.getOnchainBalanceSat(),
+            sleep(timeoutMs)
+        ]) as number | null
+
+        if (result === null) {
+            return 0
+        }
+        return result
     }
 
     /**

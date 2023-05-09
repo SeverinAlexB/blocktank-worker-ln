@@ -7,7 +7,7 @@ Microservice worker to interact with Lightning Network Node
 * `npm install` Install dependencies.
 * `npm run build` Build the project.
 * `npm run start-worker` Start the worker to listen on the API.
-* `npm run watch-lnd` Listens to LND events. *Dont run multiple instances of this command. MongoDb transactions dont work without a replicaset.*
+* `npm run watch-lnd` Listens to LND events. *Dont run multiple instances of this command. MongoDb transactions don't work without a replicaset.*
 
 ## Configuration
 
@@ -84,6 +84,10 @@ Open a channel with a peer. This includes establishing the peer connection.
 * `getOrderedChannel(id: string): OpenChannelOrder`
     * id: id of the order to get.
     * Returns OpenChannelOrder object.
+
+* `isNodeWithMinimumOnchainBalanceAvailable(minimumBalanceSat: number): boolean`
+    * minimumBalanceSat: minimum amount of satoshis that should be available on the node.
+    * Returns true if the node has at least the minimum balance available.
 
 #### Events
 

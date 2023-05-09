@@ -1,4 +1,5 @@
 
+import { sleep } from "blocktank-worker2/dist/utils";
 import { AppConfig } from "../../1_config/Config";
 import { readLndConnectionInfo2 } from "./ILndConnectionInfo";
 import { LndNode } from "./LndNode";
@@ -59,4 +60,16 @@ export class LndNodeManager {
         })
         return lines.join('\n')
     }
+
+    static async getRandomWithOnchainBalance(minBalanceSat: number) {
+        const shuffledNodes = Array.from(this.nodes).sort(() => 0.5 - Math.random())
+        for (const node of shuffledNodes) {
+            const balanceSat = await node.getNodesBalanceWithTimeout(300)
+            if (balanceSat >= minBalanceSat) {
+                return node
+            }
+        }
+        throw new Error(`No node with balance >= ${minBalanceSat} sat found.`)
+    }
+
 }

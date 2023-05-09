@@ -100,6 +100,20 @@ export class LightningWorkerImplementation extends WorkerImplementation {
     }
 
     /**
+     * Checks if a node with a minimum onchain balance is available.
+     * @param minimumBalanceSat 
+     * @returns 
+     */
+    async isNodeWithMinimumOnchainBalanceAvailable(minimumBalanceSat: number): Promise<boolean> {
+        try {
+            await LndNodeManager.getRandomWithOnchainBalance(minimumBalanceSat)
+            return true
+        } catch (e) {
+            return false
+        }
+    }
+
+    /**
      * Returns the channel order.
      * @param id Id of the order.
      * @returns 
@@ -107,7 +121,7 @@ export class LightningWorkerImplementation extends WorkerImplementation {
     async getOrderedChannel(id: string): Promise<OpenChannelOrder> {
         const order = await ChannelOpenService.getChannelOrder(id)
         if (!order) {
-            throw new Error('Invoice not found')
+            throw new Error('Channel order not found')
         }
         return order
     }
@@ -131,7 +145,7 @@ export class LightningWorkerImplementation extends WorkerImplementation {
     async getPayment(paymentHash: string): Promise<Bolt11Payment> {
         const payment = await Bolt11PayService.getPayment(paymentHash)
         if (!payment) {
-            throw new Error('Invoice not found')
+            throw new Error('Payment not found')
         }
         return payment
     }

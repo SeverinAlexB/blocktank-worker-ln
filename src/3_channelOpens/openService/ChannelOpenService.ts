@@ -24,7 +24,8 @@ export class ChannelOpenService {
 
     static async openChannel(connectionString: string, isPrivate: boolean, localBalanceSat: number, pushBalanceSat: number = 0): Promise<OpenChannelOrder> {
         const {pubkey, address} = this.splitConnectionString(connectionString)
-        const node = LndNodeManager.random
+        const minWalletBalanceBufferSat = 100*1000
+        const node = await LndNodeManager.getRandomWithOnchainBalance(localBalanceSat + pushBalanceSat + minWalletBalanceBufferSat)
         try {
             await node.addPeer(pubkey, address)
         } catch (e) {
